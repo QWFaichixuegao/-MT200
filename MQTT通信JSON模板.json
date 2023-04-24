@@ -1,0 +1,233 @@
+// json压缩至1行地址   https://www.sojson.com/yasuoyihang.html
+
+// CLOSE
+{
+  \\22ID\\22: %d,
+  \\22params\\22: {
+    \\22senser: temperatureHumiditySensor1Temp\\22: %d,
+    \\22senser: temperatureHumiditySensor1Humi\\22: %d,
+    \\22senser: temperatureHumiditySensor2Temp\\22: %d,
+    \\22senser: temperatureHumiditySensor2Humi\\22: %d,
+
+    \\22driverMpuTemp\\22:%d,
+    \\22driverBoxTemp1\\22:%d,
+    \\22driverBoxTemp2\\22:%d,
+    \\22driverMcuTemp\\22:%d,
+
+    \\22battery: realTimeCurrent\\22: %d,
+    \\22battery: batteryWarningStatus\\22: %d,
+    \\22battery: capacitySoc\\22: %d,
+    \\22battery: batteryVoltageTotal\\22: %d,
+    \\22battery: electricCoreVoltageMax\\22: %d,
+    \\22battery: electricCoreVoltageMin\\22: %d,
+    \\22battery: batteryEnvironmentTemp\\22: %d,
+    \\22battery: batteryTemp1\\22: %d,
+    \\22battery: batteryTemp2\\22: %d,
+    \\22battery: batteryTemp3\\22: %d,
+    \\22battery: batteryTemp4\\22: %d,
+
+    \\22basic: longitude\\22: \\22%s\\22,
+    \\22basic: latitude\\22: \\22%s\\22,
+    \\22basic: vehicleStatus\\22: %d,
+
+    \\22debug: openMainBoxCheck\\22: %d,
+    \\22debug: openDriverBoxCheck\\22: %d,
+    \\22debug: gpsSignal\\22: %d,
+    \\22debug: cellularSignalQuality\\22: %d,
+
+  },
+  \\22method\\22: \\22thing.event.property.post\\22
+}\"\r"
+
+
+// OPEN
+{
+    \\22ID\\22: %d,
+    \\22params\\22: {
+      \\22senser: temperatureHumiditySensor1Temp\\22: %d,
+      \\22senser: temperatureHumiditySensor1Humi\\22: %d,
+      \\22senser: temperatureHumiditySensor2Temp\\22: %d,
+      \\22senser: temperatureHumiditySensor2Humi\\22: %d,
+
+      \\22battery: realTimeCurrent\\22: %d,
+      \\22battery: batteryWarningStatus\\22: %d,
+      \\22battery: capacitySoc\\22: %d,
+      \\22battery: batteryVoltageTotal\\22: %d,
+      \\22battery: electricCoreVoltageMax\\22: %d,
+      \\22battery: electricCoreVoltageMin\\22: %d,
+      \\22battery: batteryEnvironmentTemp\\22: %d,
+      \\22battery: batteryTemp1\\22: %d,
+      \\22battery: batteryTemp2\\22: %d,
+      \\22battery: batteryTemp3\\22: %d,
+      \\22battery: batteryTemp4\\22: %d,
+  
+      \\22basic: longitude\\22: \\22%s\\22,
+      \\22basic: latitude\\22: \\22%s\\22,
+      \\22basic: vehicleStatus\\22: %d,
+  
+      \\22debug: openMainBoxCheck\\22: %d,
+      \\22debug: openDriverBoxCheck\\22: %d,
+      \\22debug: gpsSignal\\22: %d,
+      \\22debug: cellularSignalQuality\\22: %d,
+  
+    },
+    \\22method\\22: \\22thing.event.property.post\\22
+  }\"\r"
+  
+// OPEN ONCE
+{
+    \\22ID\\22: %d,
+    \\22params\\22: {
+
+        \\22summary: totalRunTime\\22: %d,
+        \\22summary: totalFanMachineryTime\\22: %d,
+        \\22summary: totalWaterPumpTime\\22: %d,
+        \\22summary: totalMileage\\22: %d,
+
+        \\22battery: batteryLoop\\22: %d,
+        \\22battery: batteryCapacityPlan\\22: %.1f,
+        \\22battery: batteryCapacityFull\\22: %.1f,
+        \\22battery: hardwareVersion\\22:\\22%s\\22,
+        \\22battery: healthStatus\\22: %d,
+        \\22battery: batteryType\\22: \\22%s\\22,
+        \\22battery: softwareVersion\\22: \\22%s\\22,
+        \\22battery: batterySN\\22: \\22%s\\22,
+    
+        \\22debug: appRestartReason\\22: %d,
+    },
+    \\22method\\22: \\22thing.event.property.post\\22
+  }\"\r"
+
+// RUN 5
+{
+    \\22ID\\22: %d,
+    \\22params\\22: {
+        
+    \\22fanMachinery\\22:%d,
+    \\22anglePitch\\22:%d,
+    \\22angleRoll\\22:%d,
+
+    \\22battery: realTimeCurrent\\22: %d,
+    \\22battery: capacitySoc\\22: %d,
+
+    \\22basic: longitude\\22: \\22%s\\22,
+    \\22basic: latitude\\22: \\22%s\\22,
+    \\22basic: vehicleStatus\\22: %d,
+    \\22basic: vehicleSpeed\\22: %d,
+    },
+    \\22method\\22: \\22thing.event.property.post\\22
+}\"\r"
+
+
+// RUN 1
+{
+    \\22ID\\22: %d,
+    \\22params\\22: {
+    \\22senser: temperatureHumiditySensor1Temp\\22: %d,
+    \\22senser: temperatureHumiditySensor1Humi\\22: %d,
+    \\22senser: temperatureHumiditySensor2Temp\\22: %d,
+    \\22senser: temperatureHumiditySensor2Humi\\22: %d,
+
+    \\22driverMpuTemp\\22:%d,
+    \\22driverBoxTemp1\\22:%d,
+    \\22driverBoxTemp2\\22:%d,
+    \\22driverMcuTemp\\22:%d,
+
+    \\22battery: batteryWarningStatus\\22: %d,
+    \\22battery: batteryVoltageTotal\\22: %d,
+    \\22battery: electricCoreVoltageMax\\22: %d,
+    \\22battery: electricCoreVoltageMin\\22: %d,
+    \\22battery: batteryEnvironmentTemp\\22: %d,
+    \\22battery: batteryTemp1\\22: %d,
+    \\22battery: batteryTemp2\\22: %d,
+    \\22battery: batteryTemp3\\22: %d,
+    \\22battery: batteryTemp4\\22: %d,
+
+    \\22motor: state\\22: %d,
+    \\22motor: temp1\\22: %d,
+    \\22motor: temp2\\22: %d,
+    \\22motor: temp3\\22: %d,
+    \\22motor: temp4\\22: %d,
+
+    \\22debug: gpsSignal\\22: %d,
+    \\22debug: cellularSignalQuality\\22: %d,
+    },
+    \\22method\\22: \\22thing.event.property.post\\22
+}\"\r"
+
+// RECHARGE
+{
+    \\22ID\\22: %d,
+    \\22params\\22: {
+    \\22senser: temperatureHumiditySensor1Temp\\22: %d,
+    \\22senser: temperatureHumiditySensor1Humi\\22: %d,
+    \\22senser: temperatureHumiditySensor2Temp\\22: %d,
+    \\22senser: temperatureHumiditySensor2Humi\\22: %d,
+
+    \\22battery: realTimeCurrent\\22: %d,
+    \\22battery: batteryProtectStatus\\22: %d,
+    \\22battery: batteryWarningStatus\\22: %d,
+    \\22battery: capacitySoc\\22: %d,
+    \\22battery: chargeTimeRemain\\22: %d,
+    \\22battery: batteryVoltageTotal\\22: %d,
+    \\22battery: electricCoreVoltageMax\\22: %d,
+    \\22battery: electricCoreVoltageMin\\22: %d,
+    \\22battery: batteryTemp1\\22: %d,
+    \\22battery: batteryTemp2\\22: %d,
+    \\22battery: batteryTemp3\\22: %d,
+    \\22battery: batteryTemp4\\22: %d,
+    \\22battery: spentChargeTime\\22: %d,
+
+    \\22basic: longitude\\22: \\22%s\\22,
+    \\22basic: latitude\\22: \\22%s\\22,
+    \\22basic: vehicleStatus\\22: %d,
+
+    \\22debug: openMainBoxCheck\\22: %d,
+    \\22debug: openDriverBoxCheck\\22: %d,
+    \\22debug: gpsSignal\\22: %d,
+    \\22debug: cellularSignalQuality\\22: %d,
+    },
+    \\22method\\22: \\22thing.event.property.post\\22
+}\"\r"
+
+// FAULT
+{
+    \\22ID\\22: %d,
+    \\22params\\22: {
+      \\22senser: temperatureHumiditySensor1Temp\\22: %d,
+      \\22senser: temperatureHumiditySensor1Humi\\22: %d,
+      \\22senser: temperatureHumiditySensor2Temp\\22: %d,
+      \\22senser: temperatureHumiditySensor2Humi\\22: %d,
+  
+      \\22driverMpuTemp\\22:%d,
+      \\22emergencyStopStatus\\22:%d,
+      \\22driverBoxTemp1\\22:%d,
+      \\22driverBoxTemp2\\22:%d,
+      \\22driverMcuTemp\\22:%d,
+  
+      \\22battery: realTimeCurrent\\22: %d,
+      \\22battery: batteryProtectStatus\\22: %d,
+      \\22battery: batteryWarningStatus\\22: %d,
+      \\22battery: capacitySoc\\22: %d,
+      \\22battery: batteryVoltageTotal\\22: %d,
+      \\22battery: electricCoreVoltageMax\\22: %d,
+      \\22battery: electricCoreVoltageMin\\22: %d,
+      \\22battery: batteryEnvironmentTemp\\22: %d,
+      \\22battery: batteryTemp1\\22: %d,
+      \\22battery: batteryTemp2\\22: %d,
+      \\22battery: batteryTemp3\\22: %d,
+      \\22battery: batteryTemp4\\22: %d,
+
+      \\22motor: state\\22: %d,
+
+      \\22basic: longitude\\22: \\22%s\\22,
+      \\22basic: latitude\\22: \\22%s\\22,
+      \\22basic: vehicleStatus\\22: %d,
+  
+      \\22debug: openMainBoxCheck\\22: %d,
+      \\22debug: openDriverBoxCheck\\22: %d,
+      \\22debug: gpsSignal\\22: %d,
+      \\22debug: cellularSignalQuality\\22: %d,
+    },
+    \\22method\\22: \\22thing.event.property.post\\22
+  }\"\r"
