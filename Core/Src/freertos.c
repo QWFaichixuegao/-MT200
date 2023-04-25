@@ -58,7 +58,7 @@
 
 extern CO_Data CANopen_Master_M200_Data;
 //uint8_t INDECATOR_LIGHT_IDLE = 0;			// 同步帧标志位
-//uint16_t INDECATOR_LIGHT_IDLE_NUM = 0;	
+//uint16_t INDECATOR_LIGHT_IDLE_NUM = 0;
 
 //UNS8 data = 0;
 //UNS32 size = sizeof(data);
@@ -199,9 +199,9 @@ void StartTask01(void const * argument)
         {
             control_flag.sTimer_ms_1000 = 0;
             air_4g_connect.air820Count++;
-            
+
              // 车辆运行数据上报,目前每次慢300ms
-            if(air_4g_flag.MQTT_flag == TRUE /* && control_flag.event_mpub_mutex == FALSE && gps_info.LBSRxFlag == FALSE*/) 
+            if(air_4g_flag.MQTT_flag == TRUE /* && control_flag.event_mpub_mutex == FALSE && gps_info.LBSRxFlag == FALSE*/)
             {
                 if(control_flag.event_mpub_single_flag == TRUE)
                 {
@@ -211,7 +211,7 @@ void StartTask01(void const * argument)
                         sing_work_event.send_count = FALSE;
                     }
                     else
-                    { 
+                    {
                         control_flag.event_mpub_single_flag = FALSE;
                         air_4g_MPUB_event(WORK_EVENT_TRACK);
                         memset(&sing_work_event,0,sizeof(sing_work_event));//上报完后清空运行记录结构体数据
@@ -260,37 +260,31 @@ void StartTask01(void const * argument)
                 }
                 vTaskDelay(120);
             }
-								
+
 						//复位后每秒发送一次获取实时时间指令直到时间校准成功
 						if(air_4g_flag.get_realtime_flag == FALSE)
 						{
 							get_real_time(1);
 						}
-						
+
 						//每20s读取一次4G当前信息
 						if(air_4g_connect.air820Count == 10)
 						{
 								air_4g_connect.air820Count = 0;
 								get_4G_msg(1);// 获取4G当前信息(MQTT连接状态、4G信号质量)
-						}	
+						}
         }
-          
-/*				// 调整GPS上报频率
-        //if(gps_info.gpsUrc != gps_info.gpsUrcSet)
-        //{
-        //    char gpsBuf[20];
-        //    sprintf(gpsBuf, "AT+CGNSURC=%d\r", gps_info.gpsUrcSet);
-        //    
-        //    for(uint8_t i = 0; i <= 10; i++)
-        //    {
-        //        if(!air4g_send_cmd(gpsBuf, "OK", 400, 1))
-        //        {
-        //            gps_info.gpsUrc = gps_info.gpsUrcSet;
-        //            break;
-        //        }
-        //    }
-        //}
-*/   
+
+        // 调整GPS上报频率
+        if(gps_info.gpsUrc != gps_info.gpsUrcSet)
+        {
+            char gpsBuf[20];
+            sprintf(gpsBuf, "AT+CGNSURC=%d\r", gps_info.gpsUrcSet);
+            air4g_send_cmd("ATE0\r", "OK", 50, 1);
+            air4g_send_cmd(gpsBuf, "OK", 100, 1);
+            gps_info.gpsUrc = gps_info.gpsUrcSet;
+        }
+
         // 开启蓝牙
         if(ble_inform.ble_switch_state != ble_inform.ble_switch)
         {
@@ -304,23 +298,23 @@ void StartTask01(void const * argument)
             }
             ble_inform.ble_switch_state = ble_inform.ble_switch;
         }
-        
+
         // 如果在绑定模式下接收到了绑定请求，就关闭绑定模式，并通过蓝牙给手机发送三元组信息
         if(control_flag.Car_State == OPEN && control_flag.Bound_flag == TRUE)
         {
             control_flag.Bound_flag 	= FALSE;
-            
+
             /*
             发送三元组信息及其他传输
             AT+BLECOMM=SENDDATA,fee2,21,7172735F7465737436246768333750317A51646F47
             */
             air4g_send_cmd(ble_inform.dev_send_cmd, "OK", 100, air_4g_flag.vTa_delay);
         }
-		
+
         // 车辆和MQTT服务器断开连接
 				if(air_4g_flag.MQTT_flag == FALSE)
 				{
-            
+
             // 回显模式关闭
             for(uint8_t i = 0; i < 5; i++)
             {
@@ -338,9 +332,9 @@ void StartTask01(void const * argument)
             else
             {
                 /******检查SIM卡连接是否正常*******/
-                
+
                 // 如果车辆和接蜂窝网络连接正常，这里可以检查3次
-                
+
                 for(uint8_t i = 0; i <= 3; i++)
                 {
                     air_4g_closeURC(1);
@@ -366,23 +360,23 @@ void StartTask01(void const * argument)
                     vTaskDelay(1000);
 
                 }
-                
+
             }
             // 检查车辆和MQTT服务器是否连接，首次上报初次上线需要上报的信息
             if(air_4g_flag.MQTT_flag == TRUE)
             {
                 air_4g_OTAMPUB(1);
                 air_4g_OTASUB(1);
-                
+
                 // 开启主动上报
                 air_4g_openURC(1);
             }
 				}
-		
+
 				// 车辆和MQTT服务器连接正常
-				else 
+				else
 				{
-								
+
 					vTaskDelay(10);
 				}
 				osDelay(1);
@@ -404,45 +398,45 @@ void StartTask02(void const * argument)
   /* USER CODE BEGIN StartTask02 */
   /* Infinite loop *//*------------------------------遥控器--------------------------------*/
   for(;;)
-  {         
+  {
         // 100ms逻辑：车辆控制
         if(control_flag.cTimer_ms_100 == 1)
         {
             control_flag.cTimer_ms_100=0;
-            
+
             // 车辆控制状态机
             car_state_trans();
         }
-        
+
         // 1s逻辑：散热风扇控制，主控盒开盖检测
         if(control_flag.cTimer_ms_1000 == 10)
         {
             control_flag.cTimer_ms_1000=0;
-            
+
             // 散热风扇控制
             Boxfan_control();
             Carfan_control();
-            
+
             // 开盖检测
             Check1 = HAL_GPIO_ReadPin(GPIOE,Light_Check1_Pin);
             Check2 = HAL_GPIO_ReadPin(GPIOE,Light_Check2_Pin);
             control_flag.main_kaihe_flag = (!Check1) | (!Check2);
-            
+
             // 辅助S48100电池进行充电
             if(battery_data.battType == S48100)
             {
                 S48100B_TEMP_CHECK();
             }
         }
-        
+
         // 3s逻辑：读取电池数据，低电量判定
         if(control_flag.cTimer_ms_3000 == 30)
         {
             control_flag.cTimer_ms_3000 = 0;
-            
+
             // 读取电池数据
             batteryReadData();
-            
+
             // 判断风机水泵禁止逻辑
             if(control_flag.Car_State == RUN)
             {
@@ -475,7 +469,7 @@ void StartTask02(void const * argument)
                 }
             }
         }
-        
+
         // 5s逻辑：读取电机数据，读取小电池数据
         if(control_flag.cTimer_ms_5000 == 50)
         {
@@ -483,18 +477,18 @@ void StartTask02(void const * argument)
 
             //读取电机驱动器数据
             read_moto_data();
-            
+
             //按顺序读取ADC通道值
             adc_batt_read();
             adc_intem_read();
 
         }
-        
+
         // 120s逻辑：软开关打开时进行低电量播报
         if(control_flag.cTimer_ms_60000 == 1200)
         {
             control_flag.cTimer_ms_60000 = 0;
-            
+
             if(softSwitch_switchFlag == TRUE)
             {
                 if(battery_data.soc <= BatteryLowSOC_Level1 && battery_data.soc > BatteryLowSOC_Level2)
@@ -504,16 +498,16 @@ void StartTask02(void const * argument)
                 else if(battery_data.soc <= BatteryLowSOC_Level2)
                 {
                     speakItem(SPEAK_ITEM_WORK_BAN);
-                    speakItem(SPEAK_ITEM_CHARGE_REMIND);	
+                    speakItem(SPEAK_ITEM_CHARGE_REMIND);
                 }
             }
         }
-        
+
         // 计时周期
         control_flag.cTimer_ms_100++;
         control_flag.cTimer_ms_1000++;
         control_flag.cTimer_ms_3000++;
-        control_flag.cTimer_ms_5000++;		
+        control_flag.cTimer_ms_5000++;
         control_flag.cTimer_ms_60000++;
         osDelay(90);
     }
@@ -535,26 +529,26 @@ void StartTask03(void const * argument)
   {
         if(osOK == osSemaphoreWait(BinarySem01Handle,osWaitForever))		// 收到串口接收信号量
         {
-            //if(usart3_handle_4g.rx_len > SHORT_MESG) 
+            //if(usart3_handle_4g.rx_len > SHORT_MESG)
             //{
             // 如果判断是GPS自动上报的数据，并且GNSS run status正常，则接收并更新经纬度信息，这里存在一个问题，就是GNSS run status异常，就不会更新GPS信息，这里需要做处理
-            if(strstr((char*)usart3_handle_4g.report_buf,"+UGNSINF: 1") != NULL )		
+            if(strstr((char*)usart3_handle_4g.report_buf,"+UGNSINF: 1") != NULL )
             {
                 char *token;
-                
+
                 // strtok两次直接取第二个","之前的字符串
                 token = strtok((char*)usart3_handle_4g.report_buf, ",");
-                
+
                 // 获取GPS信号
                 gps_info.gps_signal_flag = *strtok(NULL, ",");	// 这个标志是GPS是否获取到了，实时更新
-							
-                
+
+
                 // 获取GPS
 								token = strtok(NULL,",");//分割一次逗号，但时间不在此获取
                 if(gps_info.gps_signal_flag == 0x31 )		    // 第二个逗号到第一个逗号之间的值表示GPS有无获取   0x31：有
                 {
                     token = strtok(NULL, ",");
-                    
+
                     //if(token[0] > 0x2f && token[0] < 0x3a)
                     if(token[0] > 0x30 && token[0] < 0x3a)
                     {
@@ -563,12 +557,12 @@ void StartTask03(void const * argument)
                         token = strtok(NULL, ",");
                         //strcpy((char *)gps_info.GPSlon_nowstr,token);
                         strcpy((char *)gps_info.Lon_nowstr,token);
-                        
-                        
+
+
                         if(control_flag.save_turn_flag == SET)
                         {
                             control_flag.save_turn_flag = RESET;
-                            if(sing_work_event.save_track_count < SING_TRACK_MAX) 
+                            if(sing_work_event.save_track_count < SING_TRACK_MAX)
                             {
                                 strcat(sing_work_event.trackData,(const char *)gps_info.Lon_nowstr);
                                 strcat(sing_work_event.trackData,",");
@@ -579,12 +573,12 @@ void StartTask03(void const * argument)
                         }
                     }
                 }
-                else 
+                else
                 {
                     gps_info.gps_signal_flag=0;	//这个标志是GPS是否获取到了
                 }
             }
-                
+
 						// 更新MQTT连接状态
             else if(strstr((char*)usart3_handle_4g.report_buf,"+MQTTSTATU :1")!=NULL)
             {
@@ -593,8 +587,8 @@ void StartTask03(void const * argument)
             else if(strstr((char*)usart3_handle_4g.report_buf,"+MQTTSTATU :0")!=NULL)
             {
 							air_4g_flag.MQTT_flag = FALSE;
-            }		
-						
+            }
+
 						// 更新SIM卡信号质量
             //else if(strstr((char*)usart3_handle_4g.report_buf,"+CSQ:")!=NULL)
             else if(strstr((char*)usart3_handle_4g.report_buf,"+CSQ:")!=NULL)
@@ -604,7 +598,18 @@ void StartTask03(void const * argument)
                 token=strtok(NULL,",");
                 air_4g_connect.sim_CSQ = atoi(token);
             }
-						
+
+			// 上报出错次数累计 58不识别指令允许100次
+            else if(strstr((char*)usart3_handle_4g.report_buf,"ERROR: 58")!=NULL)
+            {
+				if(control_flag.error_res_count<100) {
+                    control_flag.error_res_count++;
+                }
+                else{
+                    control_flag.error_res_flag = TRUE;
+                }
+            }
+
             // 在绑定模式模式下
             else if((control_flag.Match_flag == TRUE) && (strstr((char*)usart3_handle_4g.report_buf,"+BLEIND=DATA")!=NULL))
             {
@@ -648,18 +653,18 @@ void StartTask03(void const * argument)
 									token=strtok(NULL,":");
 									strcat((char *)timer_info.Utc_nowstr,token);
 									token=strtok(NULL,":");
-									strcat((char *)timer_info.Utc_nowstr,token);		
+									strcat((char *)timer_info.Utc_nowstr,token);
 									token=strtok(NULL,"+");
-									strcat((char *)timer_info.Utc_nowstr,token);	
+									strcat((char *)timer_info.Utc_nowstr,token);
 									timer_info.timestamp = (uint32_t)StringToTimeStamp(timer_info.Utc_nowstr);
-									air_4g_flag.get_realtime_flag = TRUE;	
+									air_4g_flag.get_realtime_flag = TRUE;
 								}
-							}	 					
+							}
             }
             memset(usart3_handle_4g.report_buf,0,SAVE_SIZE);
         }
         osDelay(1);
-  }   
+  }
   /* USER CODE END StartTask03 */
 }
 
@@ -676,12 +681,12 @@ void StartTask04(void const * argument)
   /* Infinite loop */
 	//-----------------------------------定时属性上报&数据处理TASK-----------------------------------//
 	uint32_t Prewaketime = osKernelSysTick();
-	
+
   for(;;)
     {
         // 注意1s计算一次霍尔差
         send_moto_cmd(MOTO1_HALL, MOTO_REGIS_NUM2, 0, MOTO_ReadREQ_ID);
-        
+
         // 依据状态计算汇总时间
         if(control_flag.Car_State > CLOSE)
         {
@@ -689,28 +694,28 @@ void StartTask04(void const * argument)
         }
         if(control_flag.Car_State == RUN)
         {
-                if(control_flag.Draught_swith == TRUE)
-                {
-                        count_time.countFanMachineryTime++;
-                }
-                if(control_flag.Pump_swith != G_0)
-                {
-                        count_time.countWaterPumpTime++;
-                }
+            if(control_flag.Draught_swith == TRUE)
+            {
+                count_time.countFanMachineryTime++;
+            }
+            if(control_flag.Pump_swith != G_0)
+            {
+                count_time.countWaterPumpTime++;
+            }
         }
-        
-        
-//        // 绝对延时下看门狗4S喂狗
-//        if(control_flag.Iwdg_count == 4)
-//        {
-//            control_flag.Iwdg_count = 0;
-//            HAL_IWDG_Refresh(&hiwdg);
-//        }
-//        else
-//        {
-//            control_flag.Iwdg_count++;
-//        }
-        
+
+
+       // 绝对延时下看门狗4S喂狗
+        if (control_flag.Iwdg_count == 4)
+        {
+            control_flag.Iwdg_count = 0;
+            HAL_IWDG_Refresh(&hiwdg);
+        }
+        else
+        {
+            control_flag.Iwdg_count++;
+        }
+
         osDelayUntil(&Prewaketime,1000);
     }
   /* USER CODE END StartTask04 */
@@ -722,32 +727,32 @@ void Callback01(void const * argument)
   /* USER CODE BEGIN Callback01 */
 //	control_flag.sTimer_ms_100++;
 //	control_flag.sTimer_ms_500++;
-	
+
     // 1S计时
     if(control_flag.sTimer_ms_1000 < Count_1s)
     {
 		control_flag.sTimer_ms_1000++;
 	}
-    
+
     // 5S计时
 	if(control_flag.sTimer_ms_5000 < Count_5s)
     {
 		control_flag.sTimer_ms_5000++;
 	}
-    
+
     // 10S计时
 	if(control_flag.sTimer_ms_10000 < Count_10s)
     {
 		control_flag.sTimer_ms_10000++;
 	}
-    
+
     // 60S计时
     if(control_flag.sTimer_ms_60000 < Count_60s)
     {
 		control_flag.sTimer_ms_60000++;
 	}
-    
-    
+
+
 //	if(control_flag.sTimer_ms_12000<Count_12s){
 //		control_flag.sTimer_ms_12000++;
 //	}

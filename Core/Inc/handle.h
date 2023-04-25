@@ -28,7 +28,7 @@ bool;
 /*********************************************整车控制数据*************************************************/
 
 // 设备信息固化参数
-typedef struct 
+typedef struct
 {
     char AtStrBuf[384];
     char Password[128];
@@ -47,59 +47,59 @@ typedef struct
 extern DEVICE_INFORM device_inform;
 
 // 整车状态
-typedef enum 
+typedef enum
 {
     CLOSE			   	= 0x00,
     OPEN 			    = 0x01,
     RUN  				= 0x02,
     RECHARGE     		= 0x03,
     FAULT      			= 0x04,
-    
+
     //MANUAL_RUNNING 	= 0x03,
     //AUTO_RUNNING		= 0x11,
     //BOUND_SUCC		= 0x12,
     //BOUND_FAIL        = 0x13,
-    //UNLOCK			= 0x14,	
+    //UNLOCK			= 0x14,
     //LOCKC				= 0x15,
     //GEAR_1			= 0x16,
-    //GEAR_2			= 0x17,	
-    //GEAR_3			= 0x18, 
+    //GEAR_2			= 0x17,
+    //GEAR_3			= 0x18,
 } CAR_STATE;
 
 // 控制参数定义
 typedef struct
 {
-	
+
 	  uint16_t 		cTimer_ms_60000;
 		uint16_t 		realTimer_ms_1000;   				//	实时时间计时标志
     uint16_t 		sTimer_ms_60000;
-    uint16_t 		Sbus_connect_flag;       		// 遥控器连接标志位		
-	
+    uint16_t 		Sbus_connect_flag;       		// 遥控器连接标志位
+
     // 车辆状态
-    uint8_t 		Car_State;                  // 车辆状态            
+    uint8_t 		Car_State;                  // 车辆状态
     uint8_t 		Init_flag;                  // 整车初始化标志位
-    
+
     // 车辆绑定
     uint8_t 		Bound_flag;                 // 遥控器绑定标志位
     uint8_t 		Match_flag;	                // 遥控器匹配标志位
-    
+
     // 遥控器
     uint8_t 		Sbus_lock_flag;             // 遥控器解锁标志
     //uint8_t 		Sbus_midlock_flag;		    // 遥控器E键中位标志
 
-    
-    
+
+
     // 权限控制
     //uint8_t 		Highest_autho_flag;         //
 
     // 行驶轨迹记录
     //uint8_t 		count_lock;                 //
-    uint8_t 		count_turn;                 // 
-    uint8_t 		save_turn_flag;             // 
+    uint8_t 		count_turn;                 //
+    uint8_t 		save_turn_flag;             //
 
 
     // 调试数据
-    uint8_t 		main_kaihe_flag;            // 
+    uint8_t 		main_kaihe_flag;            //
     uint8_t			resetSource;				// 获取复位源
 
 
@@ -109,64 +109,67 @@ typedef struct
     uint8_t 		Carfan_swith;               // 车体风扇开关
     //uint8_t 		Auto_turnled_flag;	        // 自动档档位变化标志，用来切换指示灯显示状态
     //uint8_t 		Ledsor_model;               // 传感器灯模式标志位，未使用
-    
+
     // 喷洒作业
     uint8_t 		Draught_swith;              // 风机开关（解锁后解析遥控器）
     uint8_t 		Draught_open_flag;          // 风机启停开关（未使用，复位启动时使用）
-    
+
     uint8_t 		Pump_swith;                 // 水泵档位开关（解锁后解析遥控器）
-    
+
     uint8_t 		DraughtPumpEnable;		    // 风机水泵禁用标志，低电量使用
-    
+
     uint8_t 		Auto_spray_swith;	        // 喷撒自动启停开关
     uint8_t 		speed_notific_flag;	        // 喷洒自动启停速度感知标志
-    uint8_t 		lock_check_flag;	        // 喷洒作业开机解锁键检查标志		
+    uint8_t 		lock_check_flag;	        // 喷洒作业开机解锁键检查标志
 		uint8_t 		lock_check_again;	        // 喷洒作业开机重解锁标志
 
     //uint8_t 		DraughtPumpEnableRecover;   // 水泵风机禁用恢复
-    
+
     // 运动控制
     uint8_t 		up_gear_flag;               // 定速模式升档标志
     uint8_t 		down_gear_flag;             // 定速模式降档标志
     uint8_t 		Auto_swith;                 // 定速模式开关
     uint8_t 		Auto_gear_swith;            // 定速模式档位选择
 
-		
+
     // 4G模块
     uint8_t 		Usart3_handle_flag;
     uint8_t 		event_mpub_mutex;
     uint8_t 		event_mpub_single_flag;     // 时间上报信号
-    
-    
+
+
     // 电池读取控制
     uint8_t 		bat_read_flag;
-    
-    
+
+
     // 看门狗计数
     uint8_t 		Iwdg_count;
-    
+
     // 车辆控制时间片计时，Task2
     uint8_t 		cTimer_ms_100;
     uint8_t 		cTimer_ms_1000;
-    uint8_t 		cTimer_ms_3000;	
-    uint8_t 		cTimer_ms_5000;	
+    uint8_t 		cTimer_ms_3000;
+    uint8_t 		cTimer_ms_5000;
 
     // 上报IOT时间片计时，Task1
     uint8_t 		sTimer_ms_100;
     uint8_t 		sTimer_ms_500;
     uint8_t 		sTimer_ms_1000;
-    uint8_t 		sTimer_ms_5000;	
+    uint8_t 		sTimer_ms_5000;
     uint8_t 		sTimer_ms_10000;
     uint8_t 		sTimer_ms_12000;
 
-		
+
 
 //	uint8_t 		scram_stop_flag;          //###对象字典替换###							//急停标志位
 //	uint8_t 		Soft_sw_flag;			  //###对象字典替换###
 //	uint8_t 		driver_kaihe_flag;        //###对象字典替换###
 
 		uint8_t 		Auto_backflag1;            	// 定速模式零档比例后退标志1
- 		uint8_t 		Auto_backflag2;            	// 定速模式零档比例后退标志2
+		uint8_t 		Auto_backflag2;            	// 定速模式零档比例后退标志2
+
+    uint8_t         error_res_count;            // 上报出错次数累计
+    uint8_t         error_res_flag;            // 上报出错复位标志
 }CONTROL_FLAG;
 extern CONTROL_FLAG control_flag;
 
@@ -178,7 +181,7 @@ typedef struct
     int32_t		totalMileage;					//总里程
     int32_t  	totalWaterPumpTime;				//水泵运行总时长
     int32_t  	totalFanMachineryTime;			//风机运行总时长
-	
+
 } SUMMARY_DATA;
 extern SUMMARY_DATA summary_data;
 
@@ -187,7 +190,7 @@ typedef struct
     uint32_t    countRunTime;					//总运行时长
     uint32_t    countWaterPumpTime;				//水泵运行总时长
     uint32_t    countFanMachineryTime;			//风机运行总时长
-	
+
 } COUNT_TIME;
 extern COUNT_TIME count_time;
 
@@ -207,7 +210,7 @@ typedef enum
     SBUS_B      =7,
     SBUS_C      =8,
     SBUS_D     	=9,
-	
+
 } REMOTE_SBUS;
 
 /****************遥控器拨杆和旋钮位置定义*******************/
@@ -228,14 +231,14 @@ typedef enum
 #define GEAR1_SPEED  			250  						// 自动1档速度
 #define GEAR2_SPEED  			500  						// 自动2档速度
 #define GEAR3_SPEED  			700 						// 自动3档速度
-#define TURN_VAR  				0.4   					    // 原地转速度比例 
-#define ROL_VAR  				13 							// 10000÷720=13.88 峰值9360 电机调速峰值10000 单位0.01% 即拉满93.60%的速度(3000*93.60%)             
+#define TURN_VAR  				0.4   					    // 原地转速度比例
+#define ROL_VAR  				13 							// 10000÷720=13.88 峰值9360 电机调速峰值10000 单位0.01% 即拉满93.60%的速度(3000*93.60%)
 
 #define SBUS_MAX  				1722                        // 表示最大值
-#define SBUS_MIN  				282                         // 表示最小值    
+#define SBUS_MIN  				282                         // 表示最小值
 #define SBUS_zhongzhi  			1002                        // 表示中间值
 #define SBUS_siqu  				200                         // 原地转锥形大小   则差速锥形大小为 720 - SBUS_siqu
-#define SBUS_pianyi  	 		50                          // 偏移大小 
+#define SBUS_pianyi  	 		50                          // 偏移大小
 #define SBUS_pianyi2  	  300                         // 用作开关的摇杆偏移大小
 
 #define SBUS_up_onofflimit  			SBUS_MAX - SBUS_pianyi2      // 1722-300=1422
@@ -255,7 +258,7 @@ extern USARTX_SBUS usart6_sbus;
 
 
 // 自动模式下车速档位
-typedef enum 
+typedef enum
 {
     G_0		=0,
     G_1     =1,
@@ -270,7 +273,7 @@ typedef struct
     int16_t 	y;
     int16_t  	car_left;
     int16_t  	car_right;
-    float 		cos; 
+    float 		cos;
     float 	   	sin;
 }CAR_MOTO;
 extern CAR_MOTO car_moto;
@@ -282,7 +285,7 @@ extern CAR_MOTO car_moto;
 
 typedef struct {
 char  	    trackData[2048];	    // 轨迹数据
-uint8_t     recordID[64];	
+uint8_t     recordID[64];
 uint8_t     start_date[16];         // 开始数据
 uint8_t	    end_date[16];           // 结束数据
 uint8_t	    latitude[16];
@@ -290,8 +293,8 @@ uint8_t	    longitude[16];
 uint8_t	    start_power;
 uint8_t	    power;
 uint8_t	    drug;
-uint8_t	    send_count;	
-uint8_t	    save_track_count;		
+uint8_t	    send_count;
+uint8_t	    save_track_count;
 uint32_t    mileage;
 }SING_WORK_EVENT;
 extern SING_WORK_EVENT sing_work_event;
@@ -373,10 +376,10 @@ extern YY_HANDLE yy_module;
 #define LEDSERSON1ID				0x602
 #define LEDSERSON2ID				0x603
 #define YYID								0x604
-#define HUMITURE1ID					0x605 
+#define HUMITURE1ID					0x605
 #define HUMITURE2ID					0x606
 
-#define DATADLC							0x08	
+#define DATADLC							0x08
 
 #define SCRAM								0x01
 #define BATTERY							0x02
@@ -401,6 +404,6 @@ extern YY_HANDLE yy_module;
 #define PARAMS_DATA  					2
 #define CHECK_DATA  					2
 
-#endif 
+#endif
 
 

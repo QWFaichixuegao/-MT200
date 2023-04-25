@@ -319,27 +319,27 @@ void USART1_IRQHandler(void)
 void USART3_IRQHandler(void)
 {
   /* USER CODE BEGIN USART3_IRQn 0 */
-    if((__HAL_UART_GET_FLAG(&huart3,UART_FLAG_IDLE) != RESET))  
-    {		
-			__HAL_UART_CLEAR_IDLEFLAG(&huart3); 
-        
+    if((__HAL_UART_GET_FLAG(&huart3,UART_FLAG_IDLE) != RESET))
+    {
+			__HAL_UART_CLEAR_IDLEFLAG(&huart3);
+
             // 停止串口DMA接收
-			HAL_UART_DMAStop(&huart3);  
-			//HAL_UART_AbortReceive_IT(&huart3);
-        
+			// HAL_UART_DMAStop(&huart3);
+			HAL_UART_AbortReceive(&huart3);//只关闭串口接收
+
 			usart3_handle_4g.rx_count  = __HAL_DMA_GET_COUNTER(&hdma_usart3_rx);
 			usart3_handle_4g.rx_len = RX_SIZE - usart3_handle_4g.rx_count;
 
             // 判断缓冲区接收到的是需要监听的信息，则触发解析
             air4gRecCheck();
-            
+
             // 将缓冲区数据复制到待处理区
 			//memcpy(usart3_handle_4g.save_buf,usart3_handle_4g.rx_buf,usart3_handle_4g.rx_len);
 
             // 清空缓冲区
 			memset(usart3_handle_4g.rx_buf,0,RX_SIZE);
 
-        
+
 //			if(control_flag.Usart3_handle_flag == TRUE)
 //            {
 //				if(usart3_handle_4g.rx_len < LONG_MESG)
@@ -347,10 +347,10 @@ void USART3_IRQHandler(void)
 //					osSemaphoreRelease(BinarySem01Handle);
 //				}
 //			}
-            
+
             // 开启串口DMA接收
-			HAL_UART_Receive_DMA(&huart3,(uint8_t *)usart3_handle_4g.rx_buf,RX_SIZE);	
-    }	
+			HAL_UART_Receive_DMA(&huart3,(uint8_t *)usart3_handle_4g.rx_buf,RX_SIZE);
+    }
 
   /* USER CODE END USART3_IRQn 0 */
   HAL_UART_IRQHandler(&huart3);
@@ -382,8 +382,8 @@ void USART6_IRQHandler(void)
 	uint8_t cnt=0;
 	if(LL_USART_IsActiveFlag_IDLE(USART6))
 		{
-			LL_DMA_DisableStream(DMA2, LL_DMA_STREAM_1); 
-			LL_USART_ClearFlag_IDLE(USART6);	
+			LL_DMA_DisableStream(DMA2, LL_DMA_STREAM_1);
+			LL_USART_ClearFlag_IDLE(USART6);
 			if(usart6_sbus.rx_count>10)
 			{
 				cnt = LL_DMA_GetDataLength(DMA2,LL_DMA_STREAM_1);
@@ -395,7 +395,7 @@ void USART6_IRQHandler(void)
 			usart6_sbus.rx_count++;
 //			memset(usart6_sbus.rx_buf,0x00,SBUS_SIZE);//SBUS写入每次30个字节以内自动覆盖
 			LL_DMA_SetDataLength(DMA2, LL_DMA_STREAM_1, SBUS_SIZE);
-			LL_DMA_EnableStream(DMA2, LL_DMA_STREAM_1); 
+			LL_DMA_EnableStream(DMA2, LL_DMA_STREAM_1);
 		}
 
   /* USER CODE END USART6_IRQn 0 */

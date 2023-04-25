@@ -73,7 +73,7 @@ typedef enum
 {
     Count_1s	=10,
     Count_5s  	=50,
-    Count_10s  	=30,
+    Count_10s  	=100,
     Count_12s  	=120,
     Count_60s  	=600,
 } TIME_COUNT_MS;

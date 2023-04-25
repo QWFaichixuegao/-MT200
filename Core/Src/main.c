@@ -86,7 +86,7 @@ int main(void)
 	control_flag.resetSource = 0;
 	getSysReseySource();
 	__HAL_RCC_CLEAR_RESET_FLAGS();
-	
+
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -118,34 +118,34 @@ int main(void)
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
 	//HAL_ADC_Start_DMA(&hadc1, (uint32_t *)&ADC_VALUE, 1);
-    
-    
+
+
 	HAL_ADC_Start(&hadc1);
 	HAL_TIM_Base_Start_IT(&htim3);
-	HAL_UART_Receive_DMA(&huart3,(uint8_t *)usart3_handle_4g.rx_buf,RX_SIZE);  
+	HAL_UART_Receive_DMA(&huart3,(uint8_t *)usart3_handle_4g.rx_buf,RX_SIZE);
     __HAL_UART_ENABLE_IT(&huart3, UART_IT_IDLE);
 
     // CAN滤波配置
 	can_filter_config();
-    
+
 	/* CAN主机初始化 */
 	setNodeId(&CANopen_Master_M200_Data, nodeID);
 	setState(&CANopen_Master_M200_Data, Operational);        // Init the state
-    
+
 	control_init();		// 控制参数初始化
 	device_init();		// 设备初始化
-	
+
 	// 4G模块初始化
     //air_4g_init(0,0);
-    
+
     // 启动所有CAN从机
 	carDeviceStart();
-    
+
     // CAN从机版本号读取
 	canDeviceVersionRead();
-    
+
     // 看门狗初始化
-//	MX_IWDG_Init();
+	MX_IWDG_Init();
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */
@@ -157,7 +157,7 @@ int main(void)
   /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	
+
   while (1)
   {
     /* USER CODE END WHILE */
