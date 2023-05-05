@@ -591,6 +591,7 @@ void Pump_control(void)
     if(control_flag.DraughtPumpEnable == FALSE | Remote[SBUS_D] <= 290)
     {
         driverBoard_pumpSpeed =0;
+        mqtt_pub_inform.motorWaterPump = 0;
 
         // 清除APP孪生水泵
         CLRBIT(mqtt_pub_inform.runvehicleStatus,12);
@@ -602,6 +603,7 @@ void Pump_control(void)
             case G_1:
                 G_1_var = (uint16_t)((Remote[SBUS_D]-SBUS_MIN) * 39 / (SBUS_MAX - SBUS_MIN) + 20);	// 20-59
                 driverBoard_pumpSpeed = G_1_var;
+                mqtt_pub_inform.motorWaterPump = G_1_var;
 
                 // 置位APP孪生水泵
                 SETBIT(mqtt_pub_inform.runvehicleStatus,12);
@@ -610,6 +612,7 @@ void Pump_control(void)
             case G_2:
                 G_2_var = (uint16_t)((Remote[SBUS_D]-SBUS_MIN) * 59 / (SBUS_MAX - SBUS_MIN) + 40);	// 40-99
                 driverBoard_pumpSpeed = G_2_var;
+                mqtt_pub_inform.motorWaterPump = G_2_var;
 
                 // 置位APP孪生水泵
                 SETBIT(mqtt_pub_inform.runvehicleStatus,12);
@@ -617,6 +620,7 @@ void Pump_control(void)
 
             case G_0:
                 driverBoard_pumpSpeed = 0;
+                mqtt_pub_inform.motorWaterPump = 0;
 
                 // 清除APP孪生水泵
                 CLRBIT(mqtt_pub_inform.runvehicleStatus,12);

@@ -842,7 +842,8 @@ void air_4g_MPUB(uint8_t car_state)
                                     ,103
                                     // 传感器模块
                                     ,spraySensor_waterPressure                    // 流量和液位
-                                    ,spraySensor_waterFlow / 1000                 // 流量
+                                    // ,spraySensor_waterFlow / 1000                 // 流量
+                                    ,mqtt_pub_inform.motorWaterPump// 流量上传遥控器水泵开度 用于喷头与遥控器滚轮开度效率测试
                                     ,spraySensor_waterLevel / 100
 
                                     // 默认模块
