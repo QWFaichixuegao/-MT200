@@ -18,6 +18,7 @@ SING_WORK_EVENT			    sing_work_event;
 GPS_HANDLE 					gps_info;
 BLE_INFORM 					ble_inform;
 TIMER_HANDLE1 		        timer_info;
+DESIRED_INFORM             desired_inform;
 
 
 // 字符串转时间戳函数
@@ -103,6 +104,7 @@ void air_4g_init(uint8_t connectMode, uint8_t delay_way)
     {
         air_4g_OTAMPUB(delay_way);
         air_4g_OTASUB(delay_way);
+		topic_sub(delay_way);
         air_4g_flag.MQTT_flag = TRUE;
     }
 
@@ -121,7 +123,7 @@ uint8_t air_4g_openURC(uint8_t delay_way)
     // 使能辅助定位
 		air4g_send_cmd("AT+CGNSAID=31,1,1,1\r", "OK", 100, delay_way);
 
-    // 设置GPS上报频率为1秒1次
+    // 设置GPS上报频率为10秒1次
     air4g_send_cmd("AT+CGNSURC=10\r", "OK", 100, delay_way);
     gps_info.gpsUrc                             = 1;
 
@@ -569,44 +571,13 @@ void ble_swit_off(bool delay_way)
 // 检查4G模块发送的信息是否为自动解析的数据
 void air4gRecCheck(void)
 {
-
-
-
-//    else if(
-//    //if( //(strstr(usart3_handle_4g.rx_buf,"+UGNSINF: 1")!=NULL) ||        // GPS定位信息
-//        //(strstr(usart3_handle_4g.rx_buf,"+CIPGSMLOC: 0")!=NULL) ||      // 基站定位信息
-//        //(strstr(usart3_handle_4g.rx_buf,"+WIFILOC: 0")!=NULL) ||        // WIFI定位信息
-//        (strstr(usart3_handle_4g.rx_buf,"+CSQ:")!=NULL)  ||
-//        (strstr(usart3_handle_4g.rx_buf,"303124")!=NULL) ||
-//        (strstr(usart3_handle_4g.rx_buf,"303224")!=NULL) ||
-//        (strstr(usart3_handle_4g.rx_buf,"303324")!=NULL) ||
-//        (strstr(usart3_handle_4g.rx_buf,"upgrade")!=NULL)||
-//        (strstr(usart3_handle_4g.rx_buf,"+HTTPACTION: 0,200")!=NULL)
-//        )
-//    {
-//        //if(control_flag.Init_flag == FALSE)
-//        //{
-//            memcpy(usart3_handle_4g.report_buf,usart3_handle_4g.rx_buf,usart3_handle_4g.rx_len);
-//            osSemaphoreRelease(BinarySem01Handle);
-//        //}
-//    }
-//    if(strstr((char*)usart3_handle_4g.rx_buf,"+UGNSINF: 1")!=NULL )		// GPS定位信息
-//    {
-//        memcpy(gps_info.GPSRx,usart3_handle_4g.rx_buf,usart3_handle_4g.rx_len);
-//        gps_info.GPSRxFlag = TRUE;
-//    }
-    //else if( strstr(usart3_handle_4g.rx_buf,"+CIPGSMLOC: 0")!=NULL)     // 基站定位信息
-    //{
-    //    memcpy(gps_info.LBSRx,usart3_handle_4g.rx_buf,usart3_handle_4g.rx_len);
-    //    gps_info.LBSRxFlag = TRUE;
-    //}
     if((strstr((char*)usart3_handle_4g.rx_buf,"+UGNSINF: 1")!=NULL)||
 		(strstr(usart3_handle_4g.rx_buf,"+CSQ:")!=NULL)||
 		(strstr(usart3_handle_4g.rx_buf,"+BLEIND=DATA")!=NULL)||
 		(strstr(usart3_handle_4g.rx_buf,"+MQTTSTATU")!=NULL)||
 		(strstr(usart3_handle_4g.rx_buf,"+CCLK:")!=NULL)||
-        (strstr(usart3_handle_4g.rx_buf,"ERROR")!=NULL)
-        //(strstr(usart3_handle_4g.rx_buf,"303224")!=NULL) ||
+        (strstr(usart3_handle_4g.rx_buf,"ERROR")!=NULL)||
+        (strstr(usart3_handle_4g.rx_buf,"property/set")!=NULL)
         //(strstr(usart3_handle_4g.rx_buf,"303324")!=NULL)
         )
     {
@@ -688,6 +659,15 @@ void air_4g_OTAREQUEST(void)
                                 ,device_inform.version
                             );
     HAL_UART_Transmit_DMA(&huart3, (uint8_t*)mqtt_ota_inform.PubBuf, strlen(mqtt_ota_inform.PubBuf));
+}
+
+// 订阅主题
+void topic_sub(uint8_t delay_way)
+{
+    sprintf(desired_inform.PubBuf,"AT+MSUB=\"%s\",1\r"
+                                ,desired_inform.desired_reply_theme_str
+                            );
+    air4g_send_cmd(desired_inform.PubBuf , "OK" , 200 , delay_way);
 }
 
 //static uint32_t countid = 1213;

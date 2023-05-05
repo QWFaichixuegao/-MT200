@@ -312,8 +312,8 @@ void StartTask01(void const * argument)
         }
 
         // 车辆和MQTT服务器断开连接
-				if(air_4g_flag.MQTT_flag == FALSE)
-				{
+		if(air_4g_flag.MQTT_flag == FALSE)
+		{
 
             // 回显模式关闭
             for(uint8_t i = 0; i < 5; i++)
@@ -367,19 +367,19 @@ void StartTask01(void const * argument)
             {
                 air_4g_OTAMPUB(1);
                 air_4g_OTASUB(1);
+                topic_sub(1);
 
                 // 开启主动上报
                 air_4g_openURC(1);
             }
-				}
+		}
 
-				// 车辆和MQTT服务器连接正常
-				else
-				{
-
-					vTaskDelay(10);
-				}
-				osDelay(1);
+		// 车辆和MQTT服务器连接正常
+		else
+		{
+			vTaskDelay(10);
+		}
+		osDelay(1);
   }
   /* USER CODE END StartTask01 */
 }
@@ -634,8 +634,8 @@ void StartTask03(void const * argument)
                     speakItem(SPEAK_ITEM_BIND_SECCEEED);		//语音播报“绑定成功”
                 }
             }
-						//开机时校准一次实时时间
-						else if(strstr((char*)usart3_handle_4g.report_buf,"+CCLK:")!=NULL)
+            //开机时校准一次实时时间
+            else if(strstr((char*)usart3_handle_4g.report_buf,"+CCLK:")!=NULL)
             {
 							if(strlen((char*)usart3_handle_4g.report_buf) >= 31)
 							{
@@ -661,6 +661,12 @@ void StartTask03(void const * argument)
 								}
 							}
             }
+
+            else if(strstr((char*)usart3_handle_4g.report_buf,"restTask\":1")!=NULL)
+            {
+                control_flag.restTask_flag = TRUE;
+            }
+
             memset(usart3_handle_4g.report_buf,0,SAVE_SIZE);
         }
         osDelay(1);
@@ -705,6 +711,7 @@ void StartTask04(void const * argument)
         }
 
 
+
        // 绝对延时下看门狗4S喂狗
         if (control_flag.Iwdg_count == 4)
         {
@@ -715,6 +722,7 @@ void StartTask04(void const * argument)
         {
             control_flag.Iwdg_count++;
         }
+
 
         osDelayUntil(&Prewaketime,1000);
     }

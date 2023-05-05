@@ -44,14 +44,14 @@ typedef enum
 {
     WORK_EVENT_MAIN    		= 0,
     WORK_EVENT_TRACK		= 1,
-    DEFAUT_EVENT    		= 2,	
+    DEFAUT_EVENT    		= 2,
 }MPUB_EVENT;
 
 // 车辆显示到APP上的实时状态上报
 typedef struct
 {
-    uint16_t    vehicleStatus;	
-    uint16_t    runvehicleStatus;	//车辆运行状态  4位5位手动定速切换  8位9位自动启停 自动启停  12位水泵  13位风机  14位原地停止 15位大灯  
+    uint16_t    vehicleStatus;
+    uint16_t    runvehicleStatus;	//车辆运行状态  4位5位手动定速切换  8位9位自动启停 自动启停  12位水泵  13位风机  14位原地停止 15位大灯
     uint16_t    vehicleSpeed;
     uint8_t     liquidLevelSensor;
     uint8_t     fanMachinery;
@@ -62,14 +62,14 @@ typedef struct
     char        theme_str[128];
     char        work_event_Main[128];
     char        work_event_Track[128];
-	  char        PubBuf[2048];				// 由512改为2048
+	char        PubBuf[2048];				// 由512改为2048
     char        Pub_work_event_Buf[2048];
-	
+
 } MQTT_PUB_INFORM;
 extern MQTT_PUB_INFORM mqtt_pub_inform;
 
 // IOT平台上报状态机切换计数目标值
-typedef enum      
+typedef enum
 {
     Count_1s	=10,
     Count_5s  	=50,
@@ -88,7 +88,7 @@ typedef struct
     char 	dev_data_To16[244];	        // 244BLE蓝牙单次发送的字节长度
     char 	dev_bound_data[48];         // 绑定信息[DeviceName]$[ProductKey]
     char 	ble_name[48]; 			    // 搜索蓝牙名MQZN_DeviceName
-	
+
     uint8_t ble_switch_state;           // 蓝牙当前开关状态
     uint8_t ble_switch;                 // 蓝牙开关设置状态
 } BLE_INFORM;
@@ -148,7 +148,7 @@ typedef enum
     MQTT_MCONNECT_ERR	 	= 5,
     MQTT_MIPCLOSE_ERR       = 6,
     MQTT_MDISCONNECT_ERR    = 7,
-	
+
 } MQTT_SERVER_STATE;
 
 
@@ -158,13 +158,13 @@ typedef enum
 typedef struct
 {
 	  uint16_t    distanceDif;
-    uint8_t	    Lon_nowstr[16]; 
+    uint8_t	    Lon_nowstr[16];
     uint8_t	    Lat_nowstr[16];
-    
-    uint8_t	    GPSlon_nowstr[16]; 
+
+    uint8_t	    GPSlon_nowstr[16];
     uint8_t	    GPSlat_nowstr[16];
 
-    uint8_t	    LBSlon_nowstr[16]; 
+    uint8_t	    LBSlon_nowstr[16];
     uint8_t	    LBSlat_nowstr[16];
 	  uint8_t 		gps_signal_flag;	    // GPS信号获取标志位
     uint8_t 		lbs_signal_flag;	    // GPS信号获取标志位
@@ -175,8 +175,8 @@ typedef struct
     //uint8_t     GPSRxFlag;
     //char        LBSRx[150];           // GPS串口上报未解析数据
     //uint8_t     LBSRxFlag;
-    
-    
+
+
 }GPS_HANDLE;
 extern GPS_HANDLE gps_info;
 
@@ -185,7 +185,7 @@ typedef struct
 {
     uint8_t		Utc_nowstr[16];
 		uint32_t  timestamp;
-	
+
 }TIMER_HANDLE1;
 extern TIMER_HANDLE1 timer_info;
 
@@ -197,18 +197,18 @@ extern TIMER_HANDLE1 timer_info;
 #define     ZONEWIDE6   6           // 投影带宽度 6
 
 //高斯平面坐标系
-typedef struct 
+typedef struct
 {
     double x;
     double y;
     double z;
 } CRDCARTESIAN;
- 
+
 //大地坐标系（可以是 北京54坐标系，西安80坐标系，WGS84坐标系（GPS 坐标））
-typedef struct 
+typedef struct
 {
     double longitude; //经度
-    double latitude; //纬度 
+    double latitude; //纬度
     double height; //大地高,可设为0
 } CRDGEODETIC;
 
@@ -219,8 +219,8 @@ typedef struct
 {
     char    PubBuf[512];
     char    version_theme_str[64];
-    char    request_theme_str[64];	
-	
+    char    request_theme_str[64];
+
 } MQTT_OTA_INFORM;
 extern MQTT_OTA_INFORM mqtt_ota_inform;
 
@@ -238,13 +238,20 @@ typedef struct
 	uint8_t		get_version_flag;		     // 获取版本号是否成功
 	uint8_t		get_fireware_flag;			 // 获取新固件是否成功
 	char        PubBuf[512];
-	char 	    ota_http_urlATcmd[512];      // 组合AT指令请求的http url	
+	char 	    ota_http_urlATcmd[512];      // 组合AT指令请求的http url
 	char        version_theme_str[64];
 	char        request_theme_str[64];
-	char        msubOTA_theme_str[64];	
-} OTA_INFORM;					
+	char        msubOTA_theme_str[64];
+} OTA_INFORM;
 extern OTA_INFORM ota_inform;
 
+// 期望值消息
+typedef struct
+{
+	char       PubBuf[256];
+    char       desired_reply_theme_str[80];
+} DESIRED_INFORM;
+extern DESIRED_INFORM desired_inform;
 
 
 /*************************************************************函数声明*************************************************************/
@@ -278,6 +285,8 @@ time_t StringToTimeStamp(uint8_t* timeStr);
 char *TimeStampToString(time_t* timeStamp);
 void get_real_time(bool delay_way);
 void get_4G_msg(bool delay_way);
+
+void topic_sub(uint8_t delay_way);
 
 // 未使用
 

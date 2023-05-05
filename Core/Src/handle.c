@@ -161,7 +161,7 @@ void control_init(void)
     control_flag.Iwdg_count						= 0;
     control_flag.error_res_count				= 0;
     control_flag.error_res_flag                 = FALSE;
-
+    control_flag.restTask_flag                  = FALSE;
 
 
 
@@ -180,7 +180,7 @@ void control_init(void)
 void device_init(void)
  {
 
-	strcpy(device_inform.version,"1.1.7");//写入的版本号
+	strcpy(device_inform.version,"1.1.8");//写入的版本号
 	AT24CXX_WriteData(0x0180, (uint8_t*)device_inform.version, 5);	//将版本号写入EEPROM
 
 
@@ -223,6 +223,9 @@ void device_init(void)
 	        device_inform.ProductKey, device_inform.DeviceName);
 
 	sprintf(ota_inform.msubOTA_theme_str,"/sys/%s/%s/thing/ota/firmware/get_reply",
+					device_inform.ProductKey, device_inform.DeviceName);
+
+	sprintf(desired_inform.desired_reply_theme_str,"/sys/%s/%s/thing/property/desired/get_reply",
 					device_inform.ProductKey, device_inform.DeviceName);
 
 	mqtt_pub_inform.liquidLevelSensor	= 10;
@@ -928,8 +931,8 @@ void sbus_unlock(void)
     // 电机驱动器复位
 	send_moto_cmd(MOTO_RESET_STATE, MOTO_REGIS_NUM1, 0xFF00, MOTO_Control_ID);  //遥控器上锁来复位电机驱动器故障状态
 
-//    // 电机驱动器开启零速制动
-//	send_moto_cmd(MOTO_SysBitM, MOTO_REGIS_NUM1, 0x2000, MOTO_Control_ID);  //遥控器上锁来复位电机驱动器故障状态
+    // 电机驱动器开启零速制动
+	// send_moto_cmd(MOTO_SysBitM, MOTO_REGIS_NUM1, 0x2000, MOTO_Control_ID);  //遥控器上锁来复位电机驱动器故障状态
 
     // 运动控制
     control_flag.Auto_gear_swith 				= G_0;			                // 定速模式归零档，防止上锁后自动挡模式下升档
@@ -1239,6 +1242,10 @@ void car_state_trans(void)
 
                 //上报错误复位
 				if(control_flag.error_res_flag == TRUE) {
+					HAL_NVIC_SystemReset();
+				}
+
+				if(control_flag.restTask_flag == TRUE) {
 					HAL_NVIC_SystemReset();
 				}
 

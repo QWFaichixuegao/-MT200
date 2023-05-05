@@ -16,7 +16,6 @@ extern "C" {
 #define SETBIT(x,y) x|=(1<<y)  			//将X的第Y位置1
 #define CLRBIT(x,y) x&=~(1<<y) 			//将X的第Y位清0
 
-
 /* enum:枚举类型 */
 typedef enum
 {
@@ -169,7 +168,8 @@ typedef struct
 		uint8_t 		Auto_backflag2;            	// 定速模式零档比例后退标志2
 
     uint8_t         error_res_count;            // 上报出错次数累计
-    uint8_t         error_res_flag;            // 上报出错复位标志
+    uint8_t         error_res_flag;             // 上报出错复位标志
+    uint8_t         restTask_flag;              // 复位任务标志
 }CONTROL_FLAG;
 extern CONTROL_FLAG control_flag;
 
