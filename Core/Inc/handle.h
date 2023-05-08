@@ -234,9 +234,9 @@ typedef enum
 #define TURN_VAR  				0.4   					    // 原地转速度比例
 #define ROL_VAR  				13 							// 10000÷720=13.88 峰值9360 电机调速峰值10000 单位0.01% 即拉满93.60%的速度(3000*93.60%)
 
-#define SBUS_MAX  				1722                        // 表示最大值
-#define SBUS_MIN  				282                         // 表示最小值
-#define SBUS_zhongzhi  			1002                        // 表示中间值
+#define SBUS_MAX  				1713                        // 表示最大值
+#define SBUS_MIN  				273                         // 表示最小值
+#define SBUS_zhongzhi  			993                        // 表示中间值
 #define SBUS_siqu  				200                         // 原地转锥形大小   则差速锥形大小为 720 - SBUS_siqu
 #define SBUS_pianyi  	 		50                          // 偏移大小
 #define SBUS_pianyi2  	  300                         // 用作开关的摇杆偏移大小

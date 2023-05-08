@@ -331,10 +331,10 @@ void subus_read(void)
     Remote[SBUS_A]  = ((int16_t)usart6_sbus.rx_buf[ 8+subs2dbus] >> 2 | ((int16_t)usart6_sbus.rx_buf[ 9+subs2dbus] << 6 )) & 0x07FF;
     Remote[SBUS_B]  = ((int16_t)usart6_sbus.rx_buf[ 9+subs2dbus] >> 5 | ((int16_t)usart6_sbus.rx_buf[10+subs2dbus] << 3 )) & 0x07FF;
     Remote[SBUS_C]  = ((int16_t)usart6_sbus.rx_buf[11+subs2dbus] >> 0 | ((int16_t)usart6_sbus.rx_buf[12+subs2dbus] << 8 )) & 0x07FF;
-    Remote[SBUS_D]  = ((int16_t)usart6_sbus.rx_buf[12+subs2dbus] >> 3 | ((int16_t)usart6_sbus.rx_buf[13+subs2dbus] << 5 )) & 0x07FF; 		// 282-1722
+    Remote[SBUS_D]  = ((int16_t)usart6_sbus.rx_buf[12+subs2dbus] >> 3 | ((int16_t)usart6_sbus.rx_buf[13+subs2dbus] << 5 )) & 0x07FF;
     // T10 10Í¨µÀ
-     Remote[10] = ((int16_t)usart6_sbus.rx_buf[13+subs2dbus] >> 6 | ((int16_t)usart6_sbus.rx_buf[14+subs2dbus] << 2 )  | (int16_t)usart6_sbus.rx_buf[15+subs2dbus] <<  10 ) & 0x07FF;
-     Remote[11] = ((int16_t)usart6_sbus.rx_buf[15+subs2dbus] >> 1 | ((int16_t)usart6_sbus.rx_buf[16+subs2dbus] << 7 )) & 0x07FF;
+    Remote[10] = ((int16_t)usart6_sbus.rx_buf[13+subs2dbus] >> 6 | ((int16_t)usart6_sbus.rx_buf[14+subs2dbus] << 2 )  | (int16_t)usart6_sbus.rx_buf[15+subs2dbus] <<  10 ) & 0x07FF;
+    Remote[11] = ((int16_t)usart6_sbus.rx_buf[15+subs2dbus] >> 1 | ((int16_t)usart6_sbus.rx_buf[16+subs2dbus] << 7 )) & 0x07FF;
     // Remote[12] = ((int16_t)usart6_sbus.rx_buf[16+subs2dbus] >> 4 | ((int16_t)usart6_sbus.rx_buf[17+subs2dbus] << 4 )) & 0x07FF;
     // Remote[13] = ((int16_t)usart6_sbus.rx_buf[17+subs2dbus] >> 7 | ((int16_t)usart6_sbus.rx_buf[18+subs2dbus] << 1 )  | (int16_t)usart6_sbus.rx_buf[19+subs2dbus] <<  9 ) & 0x07FF;
     // Remote[14] = ((int16_t)usart6_sbus.rx_buf[19+subs2dbus] >> 2 | ((int16_t)usart6_sbus.rx_buf[20+subs2dbus] << 6 )) & 0x07FF;
