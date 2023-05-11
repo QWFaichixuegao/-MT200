@@ -333,8 +333,8 @@ void subus_read(void)
     Remote[SBUS_C]  = ((int16_t)usart6_sbus.rx_buf[11+subs2dbus] >> 0 | ((int16_t)usart6_sbus.rx_buf[12+subs2dbus] << 8 )) & 0x07FF;
     Remote[SBUS_D]  = ((int16_t)usart6_sbus.rx_buf[12+subs2dbus] >> 3 | ((int16_t)usart6_sbus.rx_buf[13+subs2dbus] << 5 )) & 0x07FF;
     // T10 10通道
-    Remote[10] = ((int16_t)usart6_sbus.rx_buf[13+subs2dbus] >> 6 | ((int16_t)usart6_sbus.rx_buf[14+subs2dbus] << 2 )  | (int16_t)usart6_sbus.rx_buf[15+subs2dbus] <<  10 ) & 0x07FF;
-    Remote[11] = ((int16_t)usart6_sbus.rx_buf[15+subs2dbus] >> 1 | ((int16_t)usart6_sbus.rx_buf[16+subs2dbus] << 7 )) & 0x07FF;
+    Remote[SBUS_G] = ((int16_t)usart6_sbus.rx_buf[13+subs2dbus] >> 6 | ((int16_t)usart6_sbus.rx_buf[14+subs2dbus] << 2 )  | (int16_t)usart6_sbus.rx_buf[15+subs2dbus] <<  10 ) & 0x07FF;
+    Remote[SBUS_H] = ((int16_t)usart6_sbus.rx_buf[15+subs2dbus] >> 1 | ((int16_t)usart6_sbus.rx_buf[16+subs2dbus] << 7 )) & 0x07FF;
     // Remote[12] = ((int16_t)usart6_sbus.rx_buf[16+subs2dbus] >> 4 | ((int16_t)usart6_sbus.rx_buf[17+subs2dbus] << 4 )) & 0x07FF;
     // Remote[13] = ((int16_t)usart6_sbus.rx_buf[17+subs2dbus] >> 7 | ((int16_t)usart6_sbus.rx_buf[18+subs2dbus] << 1 )  | (int16_t)usart6_sbus.rx_buf[19+subs2dbus] <<  9 ) & 0x07FF;
     // Remote[14] = ((int16_t)usart6_sbus.rx_buf[19+subs2dbus] >> 2 | ((int16_t)usart6_sbus.rx_buf[20+subs2dbus] << 6 )) & 0x07FF;
@@ -343,7 +343,7 @@ void subus_read(void)
     //判断接收机是否连接正常
     if(usart6_sbus.rx_buf[23] != 0x00)
     {
-        control_flag.Sbus_connect_flag = FALSE;
+        control_flag.Sbus_connect_flag = TRUE;
     }
     else
     {
@@ -390,12 +390,12 @@ void subus_read(void)
     if(control_flag.Sbus_lock_flag == TRUE)
     {
         // Sbus风机控制标志位
-        if(Remote[SBUS_C] >= SBUS_up_limit | Remote[SBUS_F] <= SBUS_lw_limit)
+        if(Remote[SBUS_G] >= SBUS_up_limit | Remote[SBUS_F] <= SBUS_lw_limit)
         {
             // 风机速度关闭
             control_flag.Draught_swith = FALSE;
         }
-        else if(Remote[SBUS_C] <= SBUS_up_limit && Remote[SBUS_F] >= SBUS_lw_limit)
+        else if(Remote[SBUS_G] <= SBUS_up_limit && Remote[SBUS_F] >= SBUS_lw_limit)
         {
             // 风机打开
             control_flag.Draught_swith = TRUE;
@@ -420,19 +420,19 @@ void subus_read(void)
     }
 
 		// Sbus大灯控制标志位
-		if(Remote[SBUS_Y1]>SBUS_up_onofflimit && Remote[SBUS_X1]<SBUS_mid_R_limit && Remote[SBUS_X1]>SBUS_mid_L_limit)
+		if(Remote[SBUS_D]>SBUS_up_onofflimit)
 		{
 				// 打开大灯
 				control_flag.Led48v_swith=TRUE;
 		}
-		else if(Remote[SBUS_Y1]<SBUS_lw_onofflimit && Remote[SBUS_X1]<SBUS_mid_R_limit && Remote[SBUS_X1]>SBUS_mid_L_limit)
+		else if(Remote[SBUS_D]<SBUS_lw_onofflimit)
 		{
 				// 关闭大灯
 				control_flag.Led48v_swith=FALSE;
 		}
 
-    // 蓝牙绑定标志位
-    if(Remote[SBUS_E] >= SBUS_up_limit )
+    // 蓝牙绑定、解锁标志位
+    if(Remote[SBUS_E] <= SBUS_lw_limit)
     {
         // 关闭配对响应
         control_flag.Match_flag     = FALSE;
@@ -450,7 +450,7 @@ void subus_read(void)
         control_flag.Sbus_lock_flag = FALSE;
 
     }
-    else if(Remote[SBUS_E] <= SBUS_lw_limit)
+    else if(Remote[SBUS_E] >= SBUS_up_limit)
     {
         // 关闭配对响应
         control_flag.Match_flag = FALSE;
@@ -574,7 +574,7 @@ void Draught_control(void)
     }
     else
     {
-        draughtSpeedVar = 29 + (SBUS_zhongzhi-Remote[SBUS_C]) * 0.04;			//		0~57
+        draughtSpeedVar = 29 + (SBUS_zhongzhi-Remote[SBUS_G]) * 0.04;			//		0~57
         mqtt_pub_inform.fanMachinery    =   (uint8_t)(draughtSpeedVar / 57.0 * 100.0);
         driverBoard_draughtFanspeed     =   draughtSpeedVar;
 
@@ -588,7 +588,7 @@ void Draught_control(void)
 void Pump_control(void)
 {
     uint16_t G_1_var,G_2_var;
-    if(control_flag.DraughtPumpEnable == FALSE | Remote[SBUS_D] <= 290)
+    if(control_flag.DraughtPumpEnable == FALSE | Remote[SBUS_H] <= WATER_PUMP_DEAD)
     {
         driverBoard_pumpSpeed =0;
 
@@ -600,7 +600,7 @@ void Pump_control(void)
         switch(control_flag.Pump_swith)
         {
             case G_1:
-                G_1_var = (uint16_t)((Remote[SBUS_D]-SBUS_MIN) * 39 / (SBUS_MAX - SBUS_MIN) + 20);	// 20-59
+                G_1_var = (uint16_t)((Remote[SBUS_H]-SBUS_MIN) * 39 / (SBUS_MAX - SBUS_MIN) + 20);	// 20-59
                 driverBoard_pumpSpeed = G_1_var;
 
                 // 置位APP孪生水泵
@@ -608,7 +608,7 @@ void Pump_control(void)
                 break;
 
             case G_2:
-                G_2_var = (uint16_t)((Remote[SBUS_D]-SBUS_MIN) * 59 / (SBUS_MAX - SBUS_MIN) + 40);	// 40-99
+                G_2_var = (uint16_t)((Remote[SBUS_H]-SBUS_MIN) * 59 / (SBUS_MAX - SBUS_MIN) + 40);	// 40-99
                 driverBoard_pumpSpeed = G_2_var;
 
                 // 置位APP孪生水泵
@@ -1435,57 +1435,4 @@ void car_state_trans(void)
             break;
 		}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/************************************未使用的函数****************************************/
-
-
-
-///*************检测到遥控器所有键位是否复原*************/
-//uint8_t sbus_check(void)
-//{
-//	if(control_flag.Sbus_connect_flag == TRUE    &&     //遥控器已连接
-//		control_flag.Pump_swith         == G_0     &&     //水泵档位为0
-//		 Remote[SBUS_C]  >=  SBUS_up_limit         &&     //风机关闭
-//	   control_flag.Auto_spray_swith  == FALSE   &&     //自动喷洒启停关闭
-//	   control_flag.Auto_swith        == DISABLE )      //自动档关闭
-//		return TRUE;
-//	else
-//		return FALSE;
-//}
-
-//uint8_t aTxBuffer[WR_DATA_LEN] = "0123456789ABCDEF";
-//uint8_t aRxBuffer[WR_DATA_LEN] = {0};
 

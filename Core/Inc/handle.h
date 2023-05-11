@@ -200,16 +200,18 @@ extern COUNT_TIME count_time;
 // 遥控器按键枚举
 typedef enum
 {
-    SBUS_X2		=0,
-    SBUS_Y2  	=1,
-    SBUS_Y1  	=2,
-    SBUS_X1     =3,
-    SBUS_E      =4,
-    SBUS_F      =5,
-    SBUS_A      =6,
-    SBUS_B      =7,
-    SBUS_C      =8,
-    SBUS_D     	=9,
+    SBUS_X2		=1,
+    SBUS_Y2  	=2,
+    SBUS_Y1  	=3,
+    SBUS_X1     =4,
+    SBUS_E      =5,
+    SBUS_F      =6,
+    SBUS_A      =7,
+    SBUS_B      =8,
+    SBUS_C      =9,
+    SBUS_D     	=10,
+    SBUS_G     	=11,
+    SBUS_H     	=12,
 
 } REMOTE_SBUS;
 
@@ -221,11 +223,11 @@ typedef enum
 #define SBUS_VAR  				1440 						// 遥控器SBUS信号量程
 #define SBUS_HALFVAR  			720 						// 遥控器SBUS信号半量程
 
-#define SBUS_up_limit  			SBUS_MAX - SBUS_pianyi      // 1722-50=1672
-#define SBUS_lw_limit  			SBUS_MIN + SBUS_pianyi      // 282+50=332
+#define SBUS_up_limit  			SBUS_MAX - SBUS_pianyi
+#define SBUS_lw_limit  			SBUS_MIN + SBUS_pianyi
 
-#define SBUS_mid_L_limit  	    SBUS_zhongzhi - SBUS_pianyi  // 1002-50=952
-#define SBUS_mid_R_limit  	    SBUS_zhongzhi + SBUS_pianyi  // 1002+50=1052
+#define SBUS_mid_L_limit  	    SBUS_zhongzhi - SBUS_pianyi
+#define SBUS_mid_R_limit  	    SBUS_zhongzhi + SBUS_pianyi
 
 
 #define GEAR1_SPEED  			250  						// 自动1档速度
@@ -236,15 +238,15 @@ typedef enum
 
 #define SBUS_MAX  				1713                        // 表示最大值
 #define SBUS_MIN  				273                         // 表示最小值
-#define SBUS_zhongzhi  			993                        // 表示中间值
+#define SBUS_zhongzhi  			993                         // 表示中间值
 #define SBUS_siqu  				200                         // 原地转锥形大小   则差速锥形大小为 720 - SBUS_siqu
 #define SBUS_pianyi  	 		50                          // 偏移大小
-#define SBUS_pianyi2  	  300                         // 用作开关的摇杆偏移大小
+#define SBUS_pianyi2  	        300                         // 用作开关的摇杆偏移大小
 
 #define SBUS_up_onofflimit  			SBUS_MAX - SBUS_pianyi2      // 1722-300=1422
 #define SBUS_lw_onofflimit  			SBUS_MIN + SBUS_pianyi2      // 282 +300=582
 
-
+#define WATER_PUMP_DEAD         275                         //水泵有效值死区
 
 // 遥控器UART通讯结构体
 typedef struct {
