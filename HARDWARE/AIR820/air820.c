@@ -692,7 +692,7 @@ void air_4g_MPUB(uint8_t car_state)
                                 ,SHT30CarBox_humidity							// SHT30箱体湿度
 
                                 ,spraySensor_waterPressure                      // 压力
-                                ,spraySensor_waterFlow / 1000                   // 流量
+                                ,spraySensor_waterFlow                   // 流量
                                 ,spraySensor_waterLevel / 100                   // 液位
 
                                 // 默认模块
@@ -794,7 +794,7 @@ void air_4g_MPUB(uint8_t car_state)
                                 ,SHT30CarBox_temperature      						// SHT30箱体温度
                                 ,SHT30CarBox_humidity								// SHT30箱体湿度
                                 ,spraySensor_waterPressure                          // 压力
-                                ,spraySensor_waterFlow / 1000                       // 流量
+                                ,spraySensor_waterFlow                      // 流量
                                 ,spraySensor_waterLevel / 100                       // 液位
 
                                 // 默认模块
@@ -837,19 +837,19 @@ void air_4g_MPUB(uint8_t car_state)
                     mqtt_pub_inform.rundata_turn_count++;
                     mqtt_pub_inform.vehicleStatus = mqtt_pub_inform.runvehicleStatus;   // 运行状态下上传的车辆状态为可解析数据
                     mqtt_pub_inform.vehicleSpeed  = can_read_data.Speed;
-                    sprintf(mqtt_pub_inform.PubBuf,"AT+MPUB=\"%s\",0,0,\"{\\22ID\\22:%d,\\22params\\22:{\\22senser:waterPressureSensor\\22:%d,\\22motorWaterPump\\22:%d,\\22senser:liquidLevelSensor\\22:%d,\\22fanMachinery\\22:%d,\\22anglePitch\\22:%d,\\22angleRoll\\22:%d,\\22battery:realTimeCurrent\\22:%d,\\22battery:capacitySoc\\22:%d,\\22basic:longitude\\22:\\22%s\\22,\\22basic:latitude\\22:\\22%s\\22,\\22basic:vehicleStatus\\22:%d,\\22basic:vehicleSpeed\\22:%d,},\\22method\\22:\\22thing.event.property.post\\22}\"\r"
+                    sprintf(mqtt_pub_inform.PubBuf,"AT+MPUB=\"%s\",0,0,\"{\\22ID\\22:%d,\\22params\\22:{\\22senser:waterPressureSensor\\22:%d,\\22senser:flowSensor\\22:%d,\\22senser:liquidLevelSensor\\22:%d,\\22motorWaterPump\\22:%d,\\22fanMachinery\\22:%d,\\22anglePitch\\22:%d,\\22angleRoll\\22:%d,\\22battery:realTimeCurrent\\22:%d,\\22battery:capacitySoc\\22:%d,\\22basic:longitude\\22:\\22%s\\22,\\22basic:latitude\\22:\\22%s\\22,\\22basic:vehicleStatus\\22:%d,\\22basic:vehicleSpeed\\22:%d,},\\22method\\22:\\22thing.event.property.post\\22}\"\r"
                                     ,mqtt_pub_inform.theme_str
                                     ,103
                                     // 传感器模块
-                                    ,spraySensor_waterPressure                    // 流量和液位
-                                    // ,spraySensor_waterFlow / 1000                 // 流量
-                                    ,mqtt_pub_inform.motorWaterPump// 流量上传遥控器水泵开度 用于喷头与遥控器滚轮开度效率测试
-                                    ,spraySensor_waterLevel / 100
+                                    ,spraySensor_waterPressure             // 水压 每Pa
+                                    ,spraySensor_waterFlow                  // 流量 每10ml
+                                    ,spraySensor_waterLevel/100                 // 水位 每10ml
 
                                     // 默认模块
+                                    ,mqtt_pub_inform.motorWaterPump             // 水泵功率
                                     ,mqtt_pub_inform.fanMachinery				// 风机
                                     ,driverBoard_carPitchAngle					// 倾角
-                                    ,driverBoard_carRollAngle					// 翻滚角
+                                    ,driverBoard_carRollAngle						// 翻滚角
 
                                     // 电池模块
                                     ,battery_data.currentCurrent				// 实时电流
