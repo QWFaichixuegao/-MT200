@@ -1071,7 +1071,16 @@ void air_4g_MPUB_event(uint8_t eventid)
 									,sing_work_event.end_date+9
 								);
 
-						sing_work_event.power = sing_work_event.start_power - battery_data.soc;
+						sing_work_event.power = sing_work_event.start_power - battery_data.soc;                      //运行记录耗电量计算
+
+                        if (sing_work_event.start_drug - spraySensor_waterLevel > 0)                                 //运行记录耗药量计算
+                        {
+                            sing_work_event.drug = (sing_work_event.start_drug - spraySensor_waterLevel)*10;
+                        }
+                        else
+                        {
+                            sing_work_event.drug = 0;
+                        }
 
 						sprintf(mqtt_pub_inform.Pub_work_event_Buf,"AT+MPUB=\"%s\",0,0,\"{\\22params\\22:{\\22startTime\\22:\\22%s\\22,\\22endTime\\22:\\22%s\\22,\\22power\\22:%d,\\22drug\\22:%d,\\22mileage\\22:%d,\\22longitude\\22:\\22%s\\22,\\22latitude\\22:\\22%s\\22,\\22recordId\\22:\\22%s\\22},\\22method\\22:\\22thing.event.runRecordMain.post\\22}\"\r"
 										,mqtt_pub_inform.work_event_Main
@@ -1097,7 +1106,7 @@ void air_4g_MPUB_event(uint8_t eventid)
 				case DEFAUT_EVENT:
 						break;
 		}
-    vTaskDelay(10);
+        vTaskDelay(10);
 		HAL_UART_Transmit_DMA(&huart3, (uint8_t*)mqtt_pub_inform.Pub_work_event_Buf, strlen(mqtt_pub_inform.Pub_work_event_Buf));
 		vTaskDelay(100);
 		memset(mqtt_pub_inform.PubBuf,0,sizeof(mqtt_pub_inform.Pub_work_event_Buf));

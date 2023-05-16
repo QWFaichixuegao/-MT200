@@ -212,6 +212,8 @@ void batteryS48100PdoDataCopy(void)
     battery_data.capRemain 					= s48100Battery_capRemain * 1000;			// 电池当前的剩余容量
     battery_data.soh 						= s48100Battery_batterySOH;					// 电池健康百分比SOH
 
+    battery_data.chargeTimeRemain 		    = (1000-s48100Battery_batterySOC)*120/1000;                 // 充电剩余时间（分钟）
+
     // 电压电流参数
     battery_data.voitageCurrent 			= s48100Battery_currentVoltage * 10;		// 电池当前电压
     battery_data.currentCurrent 			= (int16_t)s48100Battery_currentCurrent;	// 电池当前电流
