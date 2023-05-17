@@ -1256,6 +1256,20 @@ void car_state_trans(void)
 					HAL_NVIC_SystemReset();
 				}
 
+                if (SHT30CarBox_temperature < 440)
+                {
+                    // 打开散热风扇
+                    control_flag.Boxfan_swith           = DISABLE;
+                    control_flag.Carfan_swith      	    = DISABLE;
+                }else if(SHT30CarBox_temperature > 495)
+                {
+                    // 关闭散热风扇
+                    control_flag.Boxfan_swith           = ENABLE;
+                    control_flag.Carfan_swith      	    = ENABLE;
+                }
+
+
+
             }
             break;
 
