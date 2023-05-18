@@ -388,6 +388,20 @@ void get_4G_msg(bool delay_way)
 	//..
 }
 
+//gps连接检查 运行模式下
+void gpsCheck(bool delay_way)
+{   //如果GPS丢失关闭并重新打开
+    if(gps_info.gps_signal_flag != 0x31)
+    {
+        air4g_send_cmd("ATE0\r" , "OK" , 20,delay_way);
+        air4g_send_cmd("AT+CGNSURC=0\r" , "OK" , 100 , delay_way);//关闭处理后的GPS信息周期上报
+        air4g_send_cmd("AT+CGNSPWR=0\r" , "OK" , 100,delay_way);//关闭GPS
+
+        air4g_send_cmd("AT+CGNSPWR=1\r" , "OK" , 100 , delay_way);//打开GPS
+        air4g_send_cmd("AT+CGNSAID=31,1,1,1\r" , "OK" , 1000,delay_way);//使能辅助定位
+		air4g_send_cmd("AT+CGNSURC=1\r" , "OK" , 100,delay_way);//设置处理后的GPS信息周期上报  1hz
+    }
+}
 
 /*************计算坐标间距离***************/
 void BLTOXY(CRDCARTESIAN * pcc, CRDGEODETIC * pcg, int Datum, int zonewide)
@@ -1117,6 +1131,7 @@ void air_4g_MPUB_event(uint8_t eventid)
 
 
 //YY_HANDLE 			yy_module;
+
 
 //// 打开GPS
 //void gps_swit_on(bool delay_way)

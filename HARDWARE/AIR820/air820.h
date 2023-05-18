@@ -285,6 +285,7 @@ time_t StringToTimeStamp(uint8_t* timeStr);
 char *TimeStampToString(time_t* timeStamp);
 void get_real_time(bool delay_way);
 void get_4G_msg(bool delay_way);
+void gpsCheck(bool delay_way)£»
 
 void topic_sub(uint8_t delay_way);
 
