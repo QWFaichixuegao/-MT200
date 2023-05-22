@@ -1239,6 +1239,18 @@ void car_state_trans(void)
                     control_flag.Car_State 				= RECHARGE;	    // 跳转至充电状态
                 }
 
+                if (SHT30CarBox_temperature < 440)
+                {
+                    // 打开散热风扇
+                    control_flag.Boxfan_swith           = DISABLE;
+                    control_flag.Carfan_swith      	    = DISABLE;
+                }else if(SHT30CarBox_temperature > 495)
+                {
+                    // 关闭散热风扇
+                    control_flag.Boxfan_swith           = ENABLE;
+                    control_flag.Carfan_swith      	    = ENABLE;
+                }
+
                 // 软开关打开
                 if(softSwitch_switchFlag == TRUE)
                 {
@@ -1255,19 +1267,6 @@ void car_state_trans(void)
 				if(control_flag.restTask_flag == TRUE) {
 					HAL_NVIC_SystemReset();
 				}
-
-                if (SHT30CarBox_temperature < 440)
-                {
-                    // 打开散热风扇
-                    control_flag.Boxfan_swith           = DISABLE;
-                    control_flag.Carfan_swith      	    = DISABLE;
-                }else if(SHT30CarBox_temperature > 495)
-                {
-                    // 关闭散热风扇
-                    control_flag.Boxfan_swith           = ENABLE;
-                    control_flag.Carfan_swith      	    = ENABLE;
-                }
-
 
 
             }

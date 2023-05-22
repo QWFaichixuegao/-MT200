@@ -8,7 +8,8 @@ void adc_intem_read(void)
     HAL_ADC_Start(&hadc1);
     HAL_ADC_PollForConversion(&hadc1,50);
     read_adc.adc_value1 = HAL_ADC_GetValue(&hadc1);
-    read_adc.tem_c = (1.43f - read_adc.adc_value1 * 3.3f / 4096) / 4.3f + 25;
+		read_adc.tem_c = ((float)(read_adc.adc_value1) * 3.3f / 4096 - 0.76f) / 0.0025f + 25;
+//    read_adc.tem_c = (1.43f - read_adc.adc_value1 * 3.3f / 4096) / 4.3f + 25;
 }
 
 // ∂¡–°µÁ≥ÿµÁ—π
