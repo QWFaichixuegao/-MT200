@@ -399,7 +399,8 @@ void gpsCheck(bool delay_way)
 
         air4g_send_cmd("AT+CGNSPWR=1\r" , "OK" , 100 , delay_way);//打开GPS
         air4g_send_cmd("AT+CGNSAID=31,1,1,1\r" , "OK" , 1000,delay_way);//使能辅助定位
-		air4g_send_cmd("AT+CGNSURC=1\r" , "OK" , 100,delay_way);//设置处理后的GPS信息周期上报  1hz
+        air4g_send_cmd("AT+CGNSURC=1\r" , "OK" , 100,delay_way);//设置处理后的GPS信息周期上报  1hz
+        gps_info.gpsCheckcount = 0;
     }
 }
 
@@ -982,8 +983,11 @@ void air_4g_MPUB(uint8_t car_state)
                 {
                     //发送一次最后电源连接的时间和充电剩余时间
                     mqtt_pub_inform.start_charge_flag = DISABLE;
-                    strcpy((char *)battery_data.lastChargeTime, (const char *)timer_info.Utc_nowstr);
-                    battery_data.timestamp = (uint64_t)StringToTimeStamp(battery_data.lastChargeTime);
+                    // strcpy((char *)battery_data.lastChargeTime, (const char *)timer_info.Utc_nowstr);
+                    // battery_data.timestamp = (uint64_t)StringToTimeStamp(battery_data.lastChargeTime);
+
+                    time_t changeUTC = timer_info.timestamp;//不+28800，IOT目前用UTC
+                    battery_data.timestamp = changeUTC;
 
                     //sprintf(mqtt_pub_inform.PubBuf,"AT+MPUB=\"%s\",0,0,\"{\\22ID\\22:%d,\\22params\\22:{\\22battery:lastChargeTime\\22:\\22%lld\\22,\\22battery:chargeTimeRemain\\22:%d},\\22method\\22:\\22thing.event.property.post\\22}\"\r"
                     sprintf(mqtt_pub_inform.PubBuf,"AT+MPUB=\"%s\",0,0,\"{\\22ID\\22:%d,\\22params\\22:{\\22battery:lastChargeTime\\22:\\22%lld\\22,\\22battery:chargeTimeRemain\\22:%d},\\22method\\22:\\22thing.event.property.post\\22}\"\r"
@@ -1049,8 +1053,8 @@ void air_4g_MPUB(uint8_t car_state)
 						}
             break;
     }
-	char lenbuf[16];
-	sprintf(lenbuf,"mqttlen:%d",strlen(mqtt_pub_inform.PubBuf));
+    char lenbuf[16];
+    sprintf(lenbuf,"mqttlen:%d",strlen(mqtt_pub_inform.PubBuf));
     HAL_UART_Transmit_DMA(&huart3,(uint8_t*)lenbuf,strlen(lenbuf));
     vTaskDelay(10);
 
@@ -1072,7 +1076,7 @@ void air_4g_MPUB_event(uint8_t eventid)
 		switch(eventid)
 		{
 				case WORK_EVENT_MAIN:
-						memcpy(timer_info.Utc_nowstr, TimeStampToString(&changeUTC),14);// 从不断累计得时间戳转化成时间字符串记录结束时间
+						memcpy(timer_info.Utc_nowstr, TimeStampToString(&changeUTC),14);// 从不断累计的时间戳转化成时间字符串记录结束时间
 
 						strcpy((char *)sing_work_event.end_date, (const char *)timer_info.Utc_nowstr);
 

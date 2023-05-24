@@ -1231,14 +1231,6 @@ void car_state_trans(void)
                     car_state_Init();
                 }
 
-                // 充电器连接
-                if(battery_data.charge_flag == TRUE)                    // CAN接收监听到电池处于充电状态，充电标志位位真
-                {
-                    mqtt_pub_inform.start_charge_flag   = ENABLE;		// 检测到充电电源连接上报一次最后充电时间
-                    power_connect();
-                    control_flag.Car_State 				= RECHARGE;	    // 跳转至充电状态
-                }
-
                 if (SHT30CarBox_temperature < 440)
                 {
                     // 打开散热风扇
@@ -1251,6 +1243,14 @@ void car_state_trans(void)
                     control_flag.Carfan_swith      	    = ENABLE;
                 }
 
+                // 充电器连接
+                if(battery_data.charge_flag == TRUE)                    // CAN接收监听到电池处于充电状态，充电标志位位真
+                {
+                    mqtt_pub_inform.start_charge_flag   = ENABLE;		// 检测到充电电源连接上报一次最后充电时间
+                    power_connect();
+                    control_flag.Car_State 				= RECHARGE;	    // 跳转至充电状态
+                }
+
                 // 软开关打开
                 if(softSwitch_switchFlag == TRUE)
                 {
@@ -1260,15 +1260,13 @@ void car_state_trans(void)
                 }
 
                 //上报错误复位
-				if(control_flag.error_res_flag == TRUE) {
-					HAL_NVIC_SystemReset();
-				}
-
-				if(control_flag.restTask_flag == TRUE) {
-					HAL_NVIC_SystemReset();
-				}
-
-
+                if(control_flag.error_res_flag == TRUE) {
+                  HAL_NVIC_SystemReset();
+                }
+                //期望值复位
+                if(control_flag.restTask_flag == TRUE) {
+                  HAL_NVIC_SystemReset();
+                }
             }
             break;
 
@@ -1369,8 +1367,8 @@ void car_state_trans(void)
                     sbus_lock();
 
                     //遥控器连接上后解下次锁前检查一次水泵是否关闭
-					control_flag.lock_check_flag = TRUE;
-					control_flag.Sbus_lock_flag  = FAULT;
+                    control_flag.lock_check_flag = TRUE;
+                    control_flag.Sbus_lock_flag  = FAULT;
                     // 状态切换
                     control_flag.Car_State 			= OPEN;
                 }

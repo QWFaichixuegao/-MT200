@@ -30,14 +30,14 @@
 // SPB21-SW20-008-A01电池通讯参数
 #define BAT_STAR_StdId						0x0001
 #define BAT_DATA_StdId						0x0002
-#define BAT_OVER_StdId						0x0003	
+#define BAT_OVER_StdId						0x0003
 static uint8_t  CAN_TX_Data1[8]         = {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};  // 第一帧数据
 static uint8_t  CAN_TX_Data2_current[8] = {0xEA,0xD1,0x01,0x04,0xFF,0x03,0xF8,0xF5};	 // 第二帧电池电流指令
 static uint8_t  CAN_TX_Data2_energy[8]  = {0xEA,0xD1,0x01,0x04,0xFF,0x04,0xFF,0xF5};  // 第二帧电池电量指令
 static uint8_t  CAN_TX_Data3[8]         = {0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00};  // 第三帧数据
 
 // 电池SPB21-SW20-008-A01读取状态
-typedef enum 
+typedef enum
 {
      BAT_ENERGY			= 0,
      BAT_CURRENT 		= 1,
@@ -111,38 +111,39 @@ typedef enum
     SOC_LOW_LEVEL_2		= 2,
 } BATTERY_TYPE;
 
-// 电池数据   
+// 电池数据
 typedef struct {
-	
+
+    uint64_t 	timestamp;          			// 电时间时间戳形式，uint64_t
     // 固定参数
     uint8_t		battType;						// 电池种类
     char		battTypeName[16];				// 电池种类名称
     char  		battHarewareVersion[16];		// 电池硬件版本号；单位无，INT32，取值无限制
     char  		battSoftwareVersion[16];		// 电池软件版本号；
     char		battSN[16];						// 电池SN码
-    
-    
+
+
     // QC105通讯参数
     uint8_t  	cur_count;						// 电池读取数据包切换
     uint8_t  	energy_rx_count;		    	// 接收帧计数
     uint8_t  	energy_rx_flag;					// 接收帧计数
-    
+
     // 电池温度
     uint8_t		battTempPoint;					// 温度采集点数量
     int16_t 	batt_temp[8]; 					// 电池温度；IOT单位1摄氏度，取值范围-100~100；老电池只用前4位：0-1是电芯0-1温度，2是MOS温度，3是MOS温度；新电池用8位：0-7是电芯0-7的温度
-    
-    
+
+
     // 充电相关参数
     uint8_t 	charge_state;       			// 电量包充放电状态
     uint8_t 	charge_flag;                    // 电池充电标志位
     uint8_t 	charge_overflag;                // 电池充电结束标志位
     uint16_t 	spentChargeTime;    			// 已经充电时间（分钟）；IOT无单位，INT32，取值为正；
     uint16_t 	circle;             			// 循环次数；IOT无单位，INT32，取值为正；
-    uint64_t 	timestamp;          			// 已充电时间时间戳形式，uint64_t debug
+
     uint16_t 	chargeTimeRemain;   			// 充电剩余时间（分钟）；IOT无单位，INT32，取值为正；
     uint16_t 	dischargeTimeRemain;   		    // 放电剩余时间（分钟）；IOT无单位，INT32，取值为正；
     uint8_t  	lastChargeTime[16];      	    // 最后一次充电时间（时间格式），IOT单位UTC时间戳
-    
+
     // 电压电流参数
     uint8_t 	voitageCurrentH;				// 电池当前电压高字节
     uint16_t 	voitageCurrent;					// 电池当前电压；IOT单位mV，INT32，取值无限制
@@ -150,7 +151,7 @@ typedef struct {
     uint16_t 	cellVoitageMin;					// 电池最低电芯电压；IOT单位mV，INT32，取值无限制
     uint8_t 	currentCurrentH;				// 电池当前电流高字节
     int16_t 	currentCurrent;					// 电池当前电流；IOT单位mA，INT32，取值无限制；
-            
+
     // 容量和健康度参数
     uint8_t  	soc;							// 电池电量剩余百分比；IOT单位无，INT32，取值0-100；
     uint32_t 	capDesignH;						// 电池设计容量高
@@ -158,7 +159,7 @@ typedef struct {
     uint32_t 	capOverall;						// 电池满容量；IOT无单位mAH，double，取值为正；
     uint32_t 	capRemain;						// 电池当前的剩余容量mAH；IOT无单位，double，取值为正；
     uint8_t  	soh;							// 电池健康百分比；IOT单位无，INT32，取值0-100；
-    
+
     // 电池状态
     uint16_t    protect_state;					// 电池保护状态；IOT单位无，INT32，
     uint16_t	warningState;					// 电池告警状态；IOT单位无，INT32，
@@ -166,8 +167,8 @@ typedef struct {
     uint16_t	bmsState;						// BMS状态
     uint16_t    cellEquilibriumState;			// 电芯均衡状态
     uint8_t		socState;						// SOC状态
-	
-	
+
+
 }BATTERY_DATA;
 extern BATTERY_DATA battery_data;
 
@@ -196,12 +197,12 @@ extern BATTERY_DATA battery_data;
 // 电机控制指令
 #define MOTO1_Velocity			0X5A	// 电机1速度指令寄存器
 #define MOTO1_Launch			0XA4	// 电机1启动指令寄存器
-#define MOTO1_HALL				0X8A	// 电机1霍尔读取寄存器  
-#define MOTO2_Velocity 			0X5B	
+#define MOTO1_HALL				0X8A	// 电机1霍尔读取寄存器
+#define MOTO2_Velocity 			0X5B
 #define MOTO2_Launch 			0XA5
 #define MOTO2_HALL				0X8C
 
-//#define MOTO1_HALL_speed		0X84	// 电机1霍尔速度读取 
+//#define MOTO1_HALL_speed		0X84	// 电机1霍尔速度读取
 
 
 //#define MOTO2_HALL_speed		0X85
@@ -214,8 +215,8 @@ typedef struct {
     uint32_t   	Hall_new;			    // 读取到的当前霍尔位置
     uint32_t   	Hall_old;			    // 读取到的上次霍尔位置
     uint32_t   	Hall_add;			    // 霍尔位置增量，未使用
-    int16_t  	Hall_rate;		        // 根据霍尔位置差计算出的霍尔差值
-    uint16_t  	Speed;      
+    int16_t  	  l_rate;		        // 根据霍尔位置差计算出的霍尔差值
+    uint16_t  	Speed;
     uint16_t  	moto_state;		        // 电机驱动器系统状态字2
     int16_t     moto_temp1;		        // 散热片监测点1温度值
     int16_t     moto_temp2;		        // 散热片监测点2温度值
@@ -270,7 +271,7 @@ extern CAN_READ_DATA can_read_data;
 
 
 //extern uint8_t INDECATOR_LIGHT_IDLE;						// 同步帧标志位
-//extern uint16_t INDECATOR_LIGHT_IDLE_NUM;	
+//extern uint16_t INDECATOR_LIGHT_IDLE_NUM;
 /***********************************电驱板参数定义*******************************************/
 
 // 电驱板通讯协议定义
@@ -294,7 +295,7 @@ extern CAN_READ_DATA can_read_data;
 
 /*********************************CAN通讯基础结构体定义*************************************/
 
-#define DATADLC					0x08	
+#define DATADLC					0x08
 
 typedef struct {
     uint8_t   				TxData[8];
@@ -303,7 +304,7 @@ typedef struct {
     //CAN_SEND_CMD 			can_Scmd;
     CAN_TxHeaderTypeDef     TxHeader;
     CAN_RxHeaderTypeDef     RxHeader;
-    
+
     uint8_t				    RxFlag;
 
 }CAN_HANDLE;
@@ -314,7 +315,7 @@ extern CAN_HANDLE can_handle;
 // 电驱板状态数据
 //typedef struct {
 //	 uint8_t  driver_RxData[8];
-//	 uint8_t  device_id;				
+//	 uint8_t  device_id;
 //	 int8_t  	boxPT100_1;			//###对象字典替换###
 //	 int8_t  	boxPT100_2;			//###对象字典替换###
 //	 int8_t  	temp_mcu;			//###对象字典替换###
@@ -345,7 +346,7 @@ void batteryS48100ReadParameter(void);
 void batteryS48100PdoDataCopy(void);
 void batteryS48100ReadData(void);
 void read_energy_data(void);
-void read_current_data(void);	
+void read_current_data(void);
 void read_moto_data(void);
 void moto_ack_handle(void);
 void battery_ack_handle(void);
