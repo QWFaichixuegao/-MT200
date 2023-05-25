@@ -711,7 +711,7 @@ void air_4g_MPUB(uint8_t car_state)
                                 ,driverBoard_mpu6050Temp						// 电驱板MPU6050温度
                                 ,driverBoard_PT100Temp1							// 驱动盒温度1
                                 ,driverBoard_PT100Temp2							// 驱动盒温度2
-                                ,driverBoard_mcuTempRise						// 电驱板MCU温度
+                                ,(int)read_adc.tem_c    						// 电驱板MCU温度物模型上传为主控盒的MCU温度
 
                                 // 电池模块
                                 ,battery_data.currentCurrent					// 实时电流
@@ -898,7 +898,7 @@ void air_4g_MPUB(uint8_t car_state)
                                     ,driverBoard_mpu6050Temp						// 电驱板MPU6050温度
                                     ,driverBoard_PT100Temp1							// 驱动盒温度1
                                     ,driverBoard_PT100Temp2							// 驱动盒温度2
-                                    ,driverBoard_mcuTempRise						// 电驱板MCU温度
+                                    ,(int)read_adc.tem_c    						// 电驱板MCU温度
 
                                     // 电池模块
                                     ,battery_data.warningState						// 告警状态
@@ -1020,7 +1020,7 @@ void air_4g_MPUB(uint8_t car_state)
 																		,driverBoard_scramStop							// 急停开关状态
 																		,driverBoard_PT100Temp1							// 驱动盒温度1
 																		,driverBoard_PT100Temp2							// 驱动盒温度2
-																		,driverBoard_mcuTempRise						// 电驱板MCU温度
+																		,(int)read_adc.tem_c    						// 电驱板MCU温度
 
 																		// 电池模块
 																		,battery_data.currentCurrent					// 实时电流
