@@ -134,33 +134,33 @@ void battery_init(void)
 void batteryTypeRead(void)
 {
     // 确定电池种类
-    UNS32 size;
-    size = sizeof(s48100Battery_batterySOC);
-    for(uint8_t i=0; i<=3; i++ )
-    {
-        if(ReadSDO(&CANopen_Master_M200_Data, 0x04, 0x6300, 0x05, uint16, &s48100Battery_batterySOC, &size, 0) == 0)
-        {
-            battery_data.battType			= S48100;								//电池种类
-            battery_data.soc = s48100Battery_batterySOC / 10;
-            strcpy(battery_data.battTypeName, "S48100");
-        }
-        else
-        {
-            battery_data.battType			= QC105;								//电池种类,默认
-            strcpy(battery_data.battTypeName, "QC105");
-        }
-    }
+    // UNS32 size;
+    // size = sizeof(s48100Battery_batterySOC);
+    // for(uint8_t i=0; i<=3; i++ )
+    // {
+    //     if(ReadSDO(&CANopen_Master_M200_Data, 0x04, 0x6300, 0x05, uint16, &s48100Battery_batterySOC, &size, 0) == 0)
+    //     {
+        battery_data.battType			= S48100;								//电池种类
+        battery_data.soc = s48100Battery_batterySOC / 10;
+        strcpy(battery_data.battTypeName, "S48100");
+    //     }
+    //     else
+    //     {
+    //         battery_data.battType			= QC105;								//电池种类,默认
+    //         strcpy(battery_data.battTypeName, "QC105");
+    //     }
+    // }
 
     // 上电读取电池SOC数据
-    if (battery_data.battType == QC105)
-    {
-        control_flag.bat_read_flag = BAT_ENERGY;
-        read_energy_data();		//读取初始电量
-    }
-    else if(battery_data.battType == s48100Battery_batterySOC)
-    {
+    // if (battery_data.battType == QC105)
+    // {
+    //     control_flag.bat_read_flag = BAT_ENERGY;
+    //     read_energy_data();		//读取初始电量
+    // }
+    // else if(battery_data.battType == s48100Battery_batterySOC)
+    // {
         batteryS48100ReadParameter();
-    }
+    // }
 }
 
 
@@ -211,6 +211,8 @@ void batteryS48100PdoDataCopy(void)
     battery_data.soc 						= s48100Battery_batterySOC / 10;			// 电池电量剩余百分比SOC
     battery_data.capRemain 					= s48100Battery_capRemain * 1000;			// 电池当前的剩余容量
     battery_data.soh 						= s48100Battery_batterySOH;					// 电池健康百分比SOH
+
+    battery_data.chargeTimeRemain 		    = (1000-s48100Battery_batterySOC)*120/1000;                 // 充电剩余时间（分钟）
 
     // 电压电流参数
     battery_data.voitageCurrent 			= s48100Battery_currentVoltage * 10;		// 电池当前电压

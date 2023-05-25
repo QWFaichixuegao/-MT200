@@ -199,7 +199,10 @@ void StartTask01(void const * argument)
         {
             control_flag.sTimer_ms_1000 = 0;
             air_4g_connect.air820Count++;
-
+            if (gps_info.gpsCheckcount < 90)
+            {
+              gps_info.gpsCheckcount++;
+            }
              // 车辆运行数据上报,目前每次慢300ms
             if(air_4g_flag.MQTT_flag == TRUE /* && control_flag.event_mpub_mutex == FALSE && gps_info.LBSRxFlag == FALSE*/)
             {
@@ -261,18 +264,27 @@ void StartTask01(void const * argument)
                 vTaskDelay(120);
             }
 
-						//复位后每秒发送一次获取实时时间指令直到时间校准成功
-						if(air_4g_flag.get_realtime_flag == FALSE)
-						{
-							get_real_time(1);
-						}
+            //复位后每秒发送一次获取实时时间指令直到时间校准成功
+            if(air_4g_flag.get_realtime_flag == FALSE)
+            {
+              get_real_time(1);
+            }
 
-						//每20s读取一次4G当前信息
-						if(air_4g_connect.air820Count == 10)
-						{
-								air_4g_connect.air820Count = 0;
-								get_4G_msg(1);// 获取4G当前信息(MQTT连接状态、4G信号质量)
-						}
+            //每20s读取一次4G当前信息
+            if(air_4g_connect.air820Count == 10)
+            {
+              air_4g_connect.air820Count = 0;
+              get_4G_msg(1);// 获取4G当前信息(MQTT连接状态、4G信号质量)
+            }
+
+                  //运行状态下每60s检查一次GPS连接
+            if(gps_info.gpsCheckcount == 90)
+            {
+              if(control_flag.Car_State == RUN)
+              {
+                gpsCheck(1);
+              }
+            }
         }
 
         // 调整GPS上报频率

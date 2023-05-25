@@ -180,7 +180,7 @@ void control_init(void)
 void device_init(void)
  {
 
-	strcpy(device_inform.version,"1.1.8");//写入的版本号
+	strcpy(device_inform.version,"1.1.9");//写入的版本号
 	AT24CXX_WriteData(0x0180, (uint8_t*)device_inform.version, 5);	//将版本号写入EEPROM
 
 
@@ -237,7 +237,9 @@ void device_init(void)
 	mqtt_pub_inform.start_charge_flag   = DISABLE;
 
 	sing_work_event.power				= 0;//--
+    sing_work_event.start_power         = 0;
 	sing_work_event.drug				= 0;//--
+    sing_work_event.start_drug          = 0;
 	sing_work_event.save_track_count	= 0;
 	sing_work_event.mileage				= 0;
 
@@ -591,6 +593,7 @@ void Pump_control(void)
     if(control_flag.DraughtPumpEnable == FALSE | Remote[SBUS_H] <= WATER_PUMP_DEAD)
     {
         driverBoard_pumpSpeed =0;
+        mqtt_pub_inform.motorWaterPump = 0;
 
         // 清除APP孪生水泵
         CLRBIT(mqtt_pub_inform.runvehicleStatus,12);
@@ -602,6 +605,7 @@ void Pump_control(void)
             case G_1:
                 G_1_var = (uint16_t)((Remote[SBUS_H]-SBUS_MIN) * 39 / (SBUS_MAX - SBUS_MIN) + 20);	// 20-59
                 driverBoard_pumpSpeed = G_1_var;
+                mqtt_pub_inform.motorWaterPump = G_1_var;
 
                 // 置位APP孪生水泵
                 SETBIT(mqtt_pub_inform.runvehicleStatus,12);
@@ -610,6 +614,7 @@ void Pump_control(void)
             case G_2:
                 G_2_var = (uint16_t)((Remote[SBUS_H]-SBUS_MIN) * 59 / (SBUS_MAX - SBUS_MIN) + 40);	// 40-99
                 driverBoard_pumpSpeed = G_2_var;
+                mqtt_pub_inform.motorWaterPump = G_2_var;
 
                 // 置位APP孪生水泵
                 SETBIT(mqtt_pub_inform.runvehicleStatus,12);
@@ -617,6 +622,7 @@ void Pump_control(void)
 
             case G_0:
                 driverBoard_pumpSpeed = 0;
+                mqtt_pub_inform.motorWaterPump = 0;
 
                 // 清除APP孪生水泵
                 CLRBIT(mqtt_pub_inform.runvehicleStatus,12);
@@ -942,11 +948,12 @@ void sbus_unlock(void)
 	send_moto_cmd(MOTO2_Launch, MOTO_REGIS_NUM1, 0xFF00, MOTO_Control_ID);
 
 	// 解锁的瞬间记录运行记录的开始数据
-	time_t changeUTC = timer_info.timestamp;//不+28800，IOT目前用UTC
-	memcpy(sing_work_event.start_date, TimeStampToString(&changeUTC),14);// 从不断累计得时间戳转化成时间字符串记录开始时间
+	time_t changeUTC = timer_info.timestamp;                                // 不+28800，IOT目前用UTC
+	memcpy(sing_work_event.start_date, TimeStampToString(&changeUTC),14);   // 从不断累计得时间戳转化成时间字符串记录开始时间
 
-	sing_work_event.start_power = battery_data.soc;						   		// 记录开始电量
-	sing_work_event.mileage = 0;												// 解锁前清零一次里程
+	sing_work_event.start_power = battery_data.soc;                         // 记录开始电量
+	sing_work_event.start_drug  = spraySensor_waterLevel;    // 记录开始药量
+	sing_work_event.mileage = 0;                                            // 解锁前清零一次里程
 
     // 切换GPS上报频率
     gps_info.gpsUrcSet = 1;
@@ -1224,6 +1231,18 @@ void car_state_trans(void)
                     car_state_Init();
                 }
 
+                if (SHT30CarBox_temperature < 440)
+                {
+                    // 打开散热风扇
+                    control_flag.Boxfan_swith           = DISABLE;
+                    control_flag.Carfan_swith      	    = DISABLE;
+                }else if(SHT30CarBox_temperature > 495)
+                {
+                    // 关闭散热风扇
+                    control_flag.Boxfan_swith           = ENABLE;
+                    control_flag.Carfan_swith      	    = ENABLE;
+                }
+
                 // 充电器连接
                 if(battery_data.charge_flag == TRUE)                    // CAN接收监听到电池处于充电状态，充电标志位位真
                 {
@@ -1241,14 +1260,13 @@ void car_state_trans(void)
                 }
 
                 //上报错误复位
-				if(control_flag.error_res_flag == TRUE) {
-					HAL_NVIC_SystemReset();
-				}
-
-				if(control_flag.restTask_flag == TRUE) {
-					HAL_NVIC_SystemReset();
-				}
-
+                if(control_flag.error_res_flag == TRUE) {
+                  HAL_NVIC_SystemReset();
+                }
+                //期望值复位
+                if(control_flag.restTask_flag == TRUE) {
+                  HAL_NVIC_SystemReset();
+                }
             }
             break;
 
@@ -1349,8 +1367,8 @@ void car_state_trans(void)
                     sbus_lock();
 
                     //遥控器连接上后解下次锁前检查一次水泵是否关闭
-					control_flag.lock_check_flag = TRUE;
-					control_flag.Sbus_lock_flag  = FAULT;
+                    control_flag.lock_check_flag = TRUE;
+                    control_flag.Sbus_lock_flag  = FAULT;
                     // 状态切换
                     control_flag.Car_State 			= OPEN;
                 }

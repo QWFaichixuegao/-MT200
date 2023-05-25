@@ -286,7 +286,10 @@ extern CAR_MOTO car_moto;
 #define SING_TRACK_MAX			90			//单次运行记录最大存储90个点
 
 typedef struct {
-char  	    trackData[2048];	    // 轨迹数据
+uint32_t    mileage;
+uint32_t    start_drug;
+uint32_t    drug;
+uint32_t    coverbuf;               //补位
 uint8_t     recordID[64];
 uint8_t     start_date[16];         // 开始数据
 uint8_t	    end_date[16];           // 结束数据
@@ -294,10 +297,9 @@ uint8_t	    latitude[16];
 uint8_t	    longitude[16];
 uint8_t	    start_power;
 uint8_t	    power;
-uint8_t	    drug;
 uint8_t	    send_count;
 uint8_t	    save_track_count;
-uint32_t    mileage;
+char  	    trackData[2048];	    // 轨迹数据
 }SING_WORK_EVENT;
 extern SING_WORK_EVENT sing_work_event;
 

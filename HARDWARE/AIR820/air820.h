@@ -7,7 +7,7 @@
 #include "can_device.h"
 #include "at24cxx.h"
 #include "time.h"
-
+#include "adc_read.h"
 
 /*************************************************************串口通信******************************************************************/
 
@@ -170,11 +170,7 @@ typedef struct
     uint8_t 		lbs_signal_flag;	    // GPS信号获取标志位
 		uint8_t     gpsUrc;                 // GPS当前上报间隔，1和5
     uint8_t     gpsUrcSet;              // GPS上报间隔设置值
-    //char        GpsPubBuf[20];
-    //char        GPSRx[150];           // GPS串口上报未解析数据
-    //uint8_t     GPSRxFlag;
-    //char        LBSRx[150];           // GPS串口上报未解析数据
-    //uint8_t     LBSRxFlag;
+    uint8_t     gpsCheckcount;              // 运行状态下GPS计数检查累计
 
 
 }GPS_HANDLE;
@@ -285,6 +281,7 @@ time_t StringToTimeStamp(uint8_t* timeStr);
 char *TimeStampToString(time_t* timeStamp);
 void get_real_time(bool delay_way);
 void get_4G_msg(bool delay_way);
+void gpsCheck(bool delay_way);
 
 void topic_sub(uint8_t delay_way);
 

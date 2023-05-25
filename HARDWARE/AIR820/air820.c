@@ -388,6 +388,21 @@ void get_4G_msg(bool delay_way)
 	//..
 }
 
+//gps连接检查 运行模式下
+void gpsCheck(bool delay_way)
+{   //如果GPS丢失关闭并重新打开
+    if(gps_info.gps_signal_flag != 0x31)
+    {
+        air4g_send_cmd("ATE0\r" , "OK" , 20,delay_way);
+        air4g_send_cmd("AT+CGNSURC=0\r" , "OK" , 100 , delay_way);//关闭处理后的GPS信息周期上报
+        air4g_send_cmd("AT+CGNSPWR=0\r" , "OK" , 100,delay_way);//关闭GPS
+
+        air4g_send_cmd("AT+CGNSPWR=1\r" , "OK" , 100 , delay_way);//打开GPS
+        air4g_send_cmd("AT+CGNSAID=31,1,1,1\r" , "OK" , 1000,delay_way);//使能辅助定位
+        air4g_send_cmd("AT+CGNSURC=1\r" , "OK" , 100,delay_way);//设置处理后的GPS信息周期上报  1hz
+        gps_info.gpsCheckcount = 0;
+    }
+}
 
 /*************计算坐标间距离***************/
 void BLTOXY(CRDCARTESIAN * pcc, CRDGEODETIC * pcg, int Datum, int zonewide)
@@ -681,7 +696,7 @@ void air_4g_MPUB(uint8_t car_state)
                 mqtt_pub_inform.vehicleStatus = 0x01;
                 if(battery_data.charge_overflag == DISABLE && mqtt_pub_inform.start_summary_flag == DISABLE)
                 {
-                    sprintf(mqtt_pub_inform.PubBuf,"AT+MPUB=\"%s\",0,0,\"{\\22ID\\22:%d,\\22params\\22:{\\22senser:temperatureHumiditySensor1Temp\\22:%d,\\22senser:temperatureHumiditySensor1Humi\\22:%d,\\22senser:temperatureHumiditySensor2Temp\\22:%d,\\22senser:temperatureHumiditySensor2Humi\\22:%d,\\22senser:waterPressureSensor\\22:%d,\\22motorWaterPump\\22:%d,\\22senser:liquidLevelSensor\\22:%d,\\22driverMpuTemp\\22:%d,\\22driverBoxTemp1\\22:%d,\\22driverBoxTemp2\\22:%d,\\22driverMcuTemp\\22:%d,\\22battery:realTimeCurrent\\22:%d,\\22battery:batteryWarningStatus\\22:%d,\\22battery:capacitySoc\\22:%d,\\22battery:batteryVoltageTotal\\22:%d,\\22battery:electricCoreVoltageMax\\22:%d,\\22battery:electricCoreVoltageMin\\22:%d,\\22battery:batteryEnvironmentTemp\\22:%d,\\22battery:batteryTemp1\\22:%d,\\22battery:batteryTemp2\\22:%d,\\22battery:batteryTemp3\\22:%d,\\22battery:batteryTemp4\\22:%d,\\22basic:longitude\\22:\\22%s\\22,\\22basic:latitude\\22:\\22%s\\22,\\22basic:vehicleStatus\\22:%d,\\22debug:openMainBoxCheck\\22:%d,\\22debug:openDriverBoxCheck\\22:%d,\\22debug:gpsSignal\\22:%d,\\22debug:cellularSignalQuality\\22:%d,},\\22method\\22:\\22thing.event.property.post\\22}\"\r"
+                    sprintf(mqtt_pub_inform.PubBuf,"AT+MPUB=\"%s\",0,0,\"{\\22ID\\22:%d,\\22params\\22:{\\22senser:temperatureHumiditySensor1Temp\\22:%d,\\22senser:temperatureHumiditySensor1Humi\\22:%d,\\22senser:temperatureHumiditySensor2Temp\\22:%d,\\22senser:temperatureHumiditySensor2Humi\\22:%d,\\22senser:liquidLevelSensor\\22:%d,\\22driverMpuTemp\\22:%d,\\22driverBoxTemp1\\22:%d,\\22driverBoxTemp2\\22:%d,\\22driverMcuTemp\\22:%d,\\22battery:realTimeCurrent\\22:%d,\\22battery:batteryWarningStatus\\22:%d,\\22battery:capacitySoc\\22:%d,\\22battery:batteryVoltageTotal\\22:%d,\\22battery:electricCoreVoltageMax\\22:%d,\\22battery:electricCoreVoltageMin\\22:%d,\\22battery:batteryEnvironmentTemp\\22:%d,\\22battery:batteryTemp1\\22:%d,\\22battery:batteryTemp2\\22:%d,\\22battery:batteryTemp3\\22:%d,\\22battery:batteryTemp4\\22:%d,\\22basic:longitude\\22:\\22%s\\22,\\22basic:latitude\\22:\\22%s\\22,\\22basic:vehicleStatus\\22:%d,\\22debug:openMainBoxCheck\\22:%d,\\22debug:openDriverBoxCheck\\22:%d,\\22debug:gpsSignal\\22:%d,\\22debug:cellularSignalQuality\\22:%d,},\\22method\\22:\\22thing.event.property.post\\22}\"\r"
                                 ,mqtt_pub_inform.theme_str
                                 ,100
 
@@ -690,16 +705,13 @@ void air_4g_MPUB(uint8_t car_state)
                                 ,SHT30Environment_humidity						// SHT30环境湿度
                                 ,SHT30CarBox_temperature      					// SHT30箱体温度
                                 ,SHT30CarBox_humidity							// SHT30箱体湿度
-
-                                ,spraySensor_waterPressure                      // 压力
-                                ,spraySensor_waterFlow / 1000                   // 流量
                                 ,spraySensor_waterLevel / 100                   // 液位
 
                                 // 默认模块
                                 ,driverBoard_mpu6050Temp						// 电驱板MPU6050温度
                                 ,driverBoard_PT100Temp1							// 驱动盒温度1
                                 ,driverBoard_PT100Temp2							// 驱动盒温度2
-                                ,driverBoard_mcuTempRise						// 电驱板MCU温度
+                                ,(int)read_adc.tem_c    						// 电驱板MCU温度物模型上传为主控盒的MCU温度
 
                                 // 电池模块
                                 ,battery_data.currentCurrent					// 实时电流
@@ -794,7 +806,7 @@ void air_4g_MPUB(uint8_t car_state)
                                 ,SHT30CarBox_temperature      						// SHT30箱体温度
                                 ,SHT30CarBox_humidity								// SHT30箱体湿度
                                 ,spraySensor_waterPressure                          // 压力
-                                ,spraySensor_waterFlow / 1000                       // 流量
+                                ,spraySensor_waterFlow                      // 流量
                                 ,spraySensor_waterLevel / 100                       // 液位
 
                                 // 默认模块
@@ -837,18 +849,19 @@ void air_4g_MPUB(uint8_t car_state)
                     mqtt_pub_inform.rundata_turn_count++;
                     mqtt_pub_inform.vehicleStatus = mqtt_pub_inform.runvehicleStatus;   // 运行状态下上传的车辆状态为可解析数据
                     mqtt_pub_inform.vehicleSpeed  = can_read_data.Speed;
-                    sprintf(mqtt_pub_inform.PubBuf,"AT+MPUB=\"%s\",0,0,\"{\\22ID\\22:%d,\\22params\\22:{\\22senser:waterPressureSensor\\22:%d,\\22motorWaterPump\\22:%d,\\22senser:liquidLevelSensor\\22:%d,\\22fanMachinery\\22:%d,\\22anglePitch\\22:%d,\\22angleRoll\\22:%d,\\22battery:realTimeCurrent\\22:%d,\\22battery:capacitySoc\\22:%d,\\22basic:longitude\\22:\\22%s\\22,\\22basic:latitude\\22:\\22%s\\22,\\22basic:vehicleStatus\\22:%d,\\22basic:vehicleSpeed\\22:%d,},\\22method\\22:\\22thing.event.property.post\\22}\"\r"
+                    sprintf(mqtt_pub_inform.PubBuf,"AT+MPUB=\"%s\",0,0,\"{\\22ID\\22:%d,\\22params\\22:{\\22senser:waterPressureSensor\\22:%d,\\22senser:flowSensor\\22:%d,\\22senser:liquidLevelSensor\\22:%d,\\22motorWaterPump\\22:%d,\\22fanMachinery\\22:%d,\\22anglePitch\\22:%d,\\22angleRoll\\22:%d,\\22battery:realTimeCurrent\\22:%d,\\22battery:capacitySoc\\22:%d,\\22basic:longitude\\22:\\22%s\\22,\\22basic:latitude\\22:\\22%s\\22,\\22basic:vehicleStatus\\22:%d,\\22basic:vehicleSpeed\\22:%d,},\\22method\\22:\\22thing.event.property.post\\22}\"\r"
                                     ,mqtt_pub_inform.theme_str
                                     ,103
                                     // 传感器模块
-                                    ,spraySensor_waterPressure                    // 流量和液位
-                                    ,spraySensor_waterFlow / 1000                 // 流量
-                                    ,spraySensor_waterLevel / 100
+                                    ,spraySensor_waterPressure                  // 水压 每KPa
+                                    ,spraySensor_waterFlow/1000                 // 流量 每1ml
+                                    ,spraySensor_waterLevel/100                 // 水位 每10ml
 
                                     // 默认模块
+                                    ,mqtt_pub_inform.motorWaterPump             // 水泵功率
                                     ,mqtt_pub_inform.fanMachinery				// 风机
                                     ,driverBoard_carPitchAngle					// 倾角
-                                    ,driverBoard_carRollAngle					// 翻滚角
+                                    ,driverBoard_carRollAngle						// 翻滚角
 
                                     // 电池模块
                                     ,battery_data.currentCurrent				// 实时电流
@@ -885,7 +898,7 @@ void air_4g_MPUB(uint8_t car_state)
                                     ,driverBoard_mpu6050Temp						// 电驱板MPU6050温度
                                     ,driverBoard_PT100Temp1							// 驱动盒温度1
                                     ,driverBoard_PT100Temp2							// 驱动盒温度2
-                                    ,driverBoard_mcuTempRise						// 电驱板MCU温度
+                                    ,(int)read_adc.tem_c    						// 电驱板MCU温度
 
                                     // 电池模块
                                     ,battery_data.warningState						// 告警状态
@@ -918,7 +931,7 @@ void air_4g_MPUB(uint8_t car_state)
                 mqtt_pub_inform.vehicleStatus = 0x05;
                 if(mqtt_pub_inform.start_charge_flag == DISABLE)
                 {
-                    sprintf(mqtt_pub_inform.PubBuf,"AT+MPUB=\"%s\",0,0,\"{\\22ID\\22:%d,\\22params\\22:{\\22senser:temperatureHumiditySensor1Temp\\22:%d,\\22senser:temperatureHumiditySensor1Humi\\22:%d,\\22senser:temperatureHumiditySensor2Temp\\22:%d,\\22senser:temperatureHumiditySensor2Humi\\22:%d,\\22senser:waterPressureSensor\\22:%d,\\22motorWaterPump\\22:%d,\\22senser:liquidLevelSensor\\22:%d,\\22battery:realTimeCurrent\\22:%d,\\22battery:batteryProtectStatus\\22:%d,\\22battery:batteryWarningStatus\\22:%d,\\22battery:capacitySoc\\22:%d,\\22battery:chargeTimeRemain\\22:%d,\\22battery:batteryVoltageTotal\\22:%d,\\22battery:electricCoreVoltageMax\\22:%d,\\22battery:electricCoreVoltageMin\\22:%d,\\22battery:batteryEnvironmentTemp\\22:%d,\\22battery:batteryTemp1\\22:%d,\\22battery:batteryTemp2\\22:%d,\\22battery:batteryTemp3\\22:%d,\\22battery:batteryTemp4\\22:%d,\\22battery:spentChargeTime\\22:%d,\\22basic:longitude\\22:\\22%s\\22,\\22basic:latitude\\22:\\22%s\\22,\\22basic:vehicleStatus\\22:%d,\\22debug:openMainBoxCheck\\22:%d,\\22debug:openDriverBoxCheck\\22:%d,\\22debug:gpsSignal\\22:%d,\\22debug:cellularSignalQuality\\22:%d,},\\22method\\22:\\22thing.event.property.post\\22}\"\r"
+                    sprintf(mqtt_pub_inform.PubBuf,"AT+MPUB=\"%s\",0,0,\"{\\22ID\\22:%d,\\22params\\22:{\\22senser:temperatureHumiditySensor1Temp\\22:%d,\\22senser:temperatureHumiditySensor1Humi\\22:%d,\\22senser:temperatureHumiditySensor2Temp\\22:%d,\\22senser:temperatureHumiditySensor2Humi\\22:%d,\\22senser:liquidLevelSensor\\22:%d,\\22battery:realTimeCurrent\\22:%d,\\22battery:batteryProtectStatus\\22:%d,\\22battery:batteryWarningStatus\\22:%d,\\22battery:capacitySoc\\22:%d,\\22battery:chargeTimeRemain\\22:%d,\\22battery:batteryVoltageTotal\\22:%d,\\22battery:electricCoreVoltageMax\\22:%d,\\22battery:electricCoreVoltageMin\\22:%d,\\22battery:batteryEnvironmentTemp\\22:%d,\\22battery:batteryTemp1\\22:%d,\\22battery:batteryTemp2\\22:%d,\\22battery:batteryTemp3\\22:%d,\\22battery:batteryTemp4\\22:%d,\\22battery:spentChargeTime\\22:%d,\\22basic:longitude\\22:\\22%s\\22,\\22basic:latitude\\22:\\22%s\\22,\\22basic:vehicleStatus\\22:%d,\\22debug:openMainBoxCheck\\22:%d,\\22debug:openDriverBoxCheck\\22:%d,\\22debug:gpsSignal\\22:%d,\\22debug:cellularSignalQuality\\22:%d,},\\22method\\22:\\22thing.event.property.post\\22}\"\r"
                                     ,mqtt_pub_inform.theme_str
                                     ,105
 
@@ -928,8 +941,6 @@ void air_4g_MPUB(uint8_t car_state)
                                     ,SHT30CarBox_temperature      					// SHT30箱体温度
                                     ,SHT30CarBox_humidity							// SHT30箱体湿度
 
-                                    ,spraySensor_waterPressure                      // 压力
-                                    ,spraySensor_waterFlow / 1000                   // 流量
                                     ,spraySensor_waterLevel / 100                   // 液位
 
                                     // 默认模块
@@ -972,8 +983,11 @@ void air_4g_MPUB(uint8_t car_state)
                 {
                     //发送一次最后电源连接的时间和充电剩余时间
                     mqtt_pub_inform.start_charge_flag = DISABLE;
-                    strcpy((char *)battery_data.lastChargeTime, (const char *)timer_info.Utc_nowstr);
-                    battery_data.timestamp = (uint64_t)StringToTimeStamp(battery_data.lastChargeTime);
+                    // strcpy((char *)battery_data.lastChargeTime, (const char *)timer_info.Utc_nowstr);
+                    // battery_data.timestamp = (uint64_t)StringToTimeStamp(battery_data.lastChargeTime);
+
+                    time_t changeUTC = timer_info.timestamp;//不+28800，IOT目前用UTC
+                    battery_data.timestamp = changeUTC;
 
                     //sprintf(mqtt_pub_inform.PubBuf,"AT+MPUB=\"%s\",0,0,\"{\\22ID\\22:%d,\\22params\\22:{\\22battery:lastChargeTime\\22:\\22%lld\\22,\\22battery:chargeTimeRemain\\22:%d},\\22method\\22:\\22thing.event.property.post\\22}\"\r"
                     sprintf(mqtt_pub_inform.PubBuf,"AT+MPUB=\"%s\",0,0,\"{\\22ID\\22:%d,\\22params\\22:{\\22battery:lastChargeTime\\22:\\22%lld\\22,\\22battery:chargeTimeRemain\\22:%d},\\22method\\22:\\22thing.event.property.post\\22}\"\r"
@@ -989,7 +1003,7 @@ void air_4g_MPUB(uint8_t car_state)
         case FAULT:
             {
                 mqtt_pub_inform.vehicleStatus = 0x24;
-								sprintf(mqtt_pub_inform.PubBuf,"AT+MPUB=\"%s\",0,0,\"{\\22ID\\22:%d,\\22params\\22:{\\22senser:temperatureHumiditySensor1Temp\\22:%d,\\22senser:temperatureHumiditySensor1Humi\\22:%d,\\22senser:temperatureHumiditySensor2Temp\\22:%d,\\22senser:temperatureHumiditySensor2Humi\\22:%d,\\22senser:waterPressureSensor\\22:%d,\\22motorWaterPump\\22:%d,\\22senser:liquidLevelSensor\\22:%d,\\22driverMpuTemp\\22:%d,\\22emergencyStopStatus\\22:%d,\\22driverBoxTemp1\\22:%d,\\22driverBoxTemp2\\22:%d,\\22driverMcuTemp\\22:%d,\\22battery:realTimeCurrent\\22:%d,\\22battery:batteryProtectStatus\\22:%d,\\22battery:batteryWarningStatus\\22:%d,\\22battery:capacitySoc\\22:%d,\\22battery:batteryVoltageTotal\\22:%d,\\22battery:electricCoreVoltageMax\\22:%d,\\22battery:electricCoreVoltageMin\\22:%d,\\22battery:batteryEnvironmentTemp\\22:%d,\\22battery:batteryTemp1\\22:%d,\\22battery:batteryTemp2\\22:%d,\\22battery:batteryTemp3\\22:%d,\\22battery:batteryTemp4\\22:%d,\\22motor:state\\22:%d,\\22basic:longitude\\22:\\22%s\\22,\\22basic:latitude\\22:\\22%s\\22,\\22basic:vehicleStatus\\22:%d,\\22debug:openMainBoxCheck\\22:%d,\\22debug:openDriverBoxCheck\\22:%d,\\22debug:gpsSignal\\22:%d,\\22debug:cellularSignalQuality\\22:%d,},\\22method\\22:\\22thing.event.property.post\\22}\"\r"
+								sprintf(mqtt_pub_inform.PubBuf,"AT+MPUB=\"%s\",0,0,\"{\\22ID\\22:%d,\\22params\\22:{\\22senser:temperatureHumiditySensor1Temp\\22:%d,\\22senser:temperatureHumiditySensor1Humi\\22:%d,\\22senser:temperatureHumiditySensor2Temp\\22:%d,\\22senser:temperatureHumiditySensor2Humi\\22:%d,\\22senser:liquidLevelSensor\\22:%d,\\22driverMpuTemp\\22:%d,\\22emergencyStopStatus\\22:%d,\\22driverBoxTemp1\\22:%d,\\22driverBoxTemp2\\22:%d,\\22driverMcuTemp\\22:%d,\\22battery:realTimeCurrent\\22:%d,\\22battery:batteryProtectStatus\\22:%d,\\22battery:batteryWarningStatus\\22:%d,\\22battery:capacitySoc\\22:%d,\\22battery:batteryVoltageTotal\\22:%d,\\22battery:electricCoreVoltageMax\\22:%d,\\22battery:electricCoreVoltageMin\\22:%d,\\22battery:batteryEnvironmentTemp\\22:%d,\\22battery:batteryTemp1\\22:%d,\\22battery:batteryTemp2\\22:%d,\\22battery:batteryTemp3\\22:%d,\\22battery:batteryTemp4\\22:%d,\\22motor:state\\22:%d,\\22basic:longitude\\22:\\22%s\\22,\\22basic:latitude\\22:\\22%s\\22,\\22basic:vehicleStatus\\22:%d,\\22debug:openMainBoxCheck\\22:%d,\\22debug:openDriverBoxCheck\\22:%d,\\22debug:gpsSignal\\22:%d,\\22debug:cellularSignalQuality\\22:%d,},\\22method\\22:\\22thing.event.property.post\\22}\"\r"
 																		,mqtt_pub_inform.theme_str
 																		,107
 
@@ -999,8 +1013,6 @@ void air_4g_MPUB(uint8_t car_state)
 																		,SHT30CarBox_temperature      					// SHT30箱体温度
 																		,SHT30CarBox_humidity							// SHT30箱体湿度
 
-																		,spraySensor_waterPressure                      // 压力
-																		,spraySensor_waterFlow / 1000                   // 流量
 																		,spraySensor_waterLevel / 100                   // 液位
 
 																		// 默认模块
@@ -1008,7 +1020,7 @@ void air_4g_MPUB(uint8_t car_state)
 																		,driverBoard_scramStop							// 急停开关状态
 																		,driverBoard_PT100Temp1							// 驱动盒温度1
 																		,driverBoard_PT100Temp2							// 驱动盒温度2
-																		,driverBoard_mcuTempRise						// 电驱板MCU温度
+																		,(int)read_adc.tem_c    						// 电驱板MCU温度
 
 																		// 电池模块
 																		,battery_data.currentCurrent					// 实时电流
@@ -1041,8 +1053,8 @@ void air_4g_MPUB(uint8_t car_state)
 						}
             break;
     }
-	char lenbuf[16];
-	sprintf(lenbuf,"mqttlen:%d",strlen(mqtt_pub_inform.PubBuf));
+    char lenbuf[16];
+    sprintf(lenbuf,"mqttlen:%d",strlen(mqtt_pub_inform.PubBuf));
     HAL_UART_Transmit_DMA(&huart3,(uint8_t*)lenbuf,strlen(lenbuf));
     vTaskDelay(10);
 
@@ -1064,7 +1076,7 @@ void air_4g_MPUB_event(uint8_t eventid)
 		switch(eventid)
 		{
 				case WORK_EVENT_MAIN:
-						memcpy(timer_info.Utc_nowstr, TimeStampToString(&changeUTC),14);// 从不断累计得时间戳转化成时间字符串记录结束时间
+						memcpy(timer_info.Utc_nowstr, TimeStampToString(&changeUTC),14);// 从不断累计的时间戳转化成时间字符串记录结束时间
 
 						strcpy((char *)sing_work_event.end_date, (const char *)timer_info.Utc_nowstr);
 
@@ -1077,7 +1089,16 @@ void air_4g_MPUB_event(uint8_t eventid)
 									,sing_work_event.end_date+9
 								);
 
-						sing_work_event.power = sing_work_event.start_power - battery_data.soc;
+						sing_work_event.power = sing_work_event.start_power - battery_data.soc;                      //运行记录耗电量计算
+
+                        if (sing_work_event.start_drug - spraySensor_waterLevel > 0)                                 //运行记录耗药量计算
+                        {
+                            sing_work_event.drug = (sing_work_event.start_drug - spraySensor_waterLevel)*10;
+                        }
+                        else
+                        {
+                            sing_work_event.drug = 0;
+                        }
 
 						sprintf(mqtt_pub_inform.Pub_work_event_Buf,"AT+MPUB=\"%s\",0,0,\"{\\22params\\22:{\\22startTime\\22:\\22%s\\22,\\22endTime\\22:\\22%s\\22,\\22power\\22:%d,\\22drug\\22:%d,\\22mileage\\22:%d,\\22longitude\\22:\\22%s\\22,\\22latitude\\22:\\22%s\\22,\\22recordId\\22:\\22%s\\22},\\22method\\22:\\22thing.event.runRecordMain.post\\22}\"\r"
 										,mqtt_pub_inform.work_event_Main
@@ -1103,7 +1124,7 @@ void air_4g_MPUB_event(uint8_t eventid)
 				case DEFAUT_EVENT:
 						break;
 		}
-    vTaskDelay(10);
+        vTaskDelay(10);
 		HAL_UART_Transmit_DMA(&huart3, (uint8_t*)mqtt_pub_inform.Pub_work_event_Buf, strlen(mqtt_pub_inform.Pub_work_event_Buf));
 		vTaskDelay(100);
 		memset(mqtt_pub_inform.PubBuf,0,sizeof(mqtt_pub_inform.Pub_work_event_Buf));
@@ -1114,6 +1135,7 @@ void air_4g_MPUB_event(uint8_t eventid)
 
 
 //YY_HANDLE 			yy_module;
+
 
 //// 打开GPS
 //void gps_swit_on(bool delay_way)
