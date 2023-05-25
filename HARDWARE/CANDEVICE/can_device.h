@@ -215,7 +215,7 @@ typedef struct {
     uint32_t   	Hall_new;			    // 读取到的当前霍尔位置
     uint32_t   	Hall_old;			    // 读取到的上次霍尔位置
     uint32_t   	Hall_add;			    // 霍尔位置增量，未使用
-    int16_t  	  l_rate;		        // 根据霍尔位置差计算出的霍尔差值
+    int16_t  	  Hall_rate;		        // 根据霍尔位置差计算出的霍尔差值
     uint16_t  	Speed;
     uint16_t  	moto_state;		        // 电机驱动器系统状态字2
     int16_t     moto_temp1;		        // 散热片监测点1温度值
