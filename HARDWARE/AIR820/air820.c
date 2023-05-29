@@ -334,44 +334,44 @@ uint8_t air4gCSQCheck(uint8_t delay_mode)
 }
 
 // 基站定位信息查询
-uint8_t lbsInfoRead(uint8_t delay_mode)
-{
-    char sendcmd[20];
-    uint8_t len_scmd;
-    sprintf(sendcmd,"AT+CIPGSMLOC=1,1\r");
+//uint8_t lbsInfoRead(uint8_t delay_mode)
+//{
+//    char sendcmd[20];
+//    uint8_t len_scmd;
+//    sprintf(sendcmd,"AT+CIPGSMLOC=1,1\r");
 
-    // 发送指令
-    len_scmd = strlen(sendcmd);
-    HAL_UART_Transmit_DMA(&huart3, (uint8_t*)sendcmd, len_scmd);
+//    // 发送指令
+//    len_scmd = strlen(sendcmd);
+//    HAL_UART_Transmit_DMA(&huart3, (uint8_t*)sendcmd, len_scmd);
 
-    // 延时等待消息
-    for(uint8_t i = 0; i <= 15; i++)
-    {
-        if(delay_mode)  vTaskDelay (400); else  HAL_Delay(400);
+//    // 延时等待消息
+//    for(uint8_t i = 0; i <= 15; i++)
+//    {
+//        if(delay_mode)  vTaskDelay (400); else  HAL_Delay(400);
 
-        // 判断AT指令返回结果
-        if(strstr((char*)usart3_handle_4g.save_buf,"+CIPGSMLOC: 0")!=NULL)
-        {
-            char *token;
-            token=strtok((char*)usart3_handle_4g.save_buf,",");
-            token=strtok(NULL,",");
-            strcpy((char *)gps_info.LBSlat_nowstr,token);
-            token=strtok(NULL,",");
-            strcpy((char *)gps_info.LBSlon_nowstr,token);
+//        // 判断AT指令返回结果
+//        if(strstr((char*)usart3_handle_4g.save_buf,"+CIPGSMLOC: 0")!=NULL)
+//        {
+//            char *token;
+//            token=strtok((char*)usart3_handle_4g.save_buf,",");
+//            token=strtok(NULL,",");
+//            strcpy((char *)gps_info.LBSlat_nowstr,token);
+//            token=strtok(NULL,",");
+//            strcpy((char *)gps_info.LBSlon_nowstr,token);
 
-            memset(usart3_handle_4g.save_buf,0,SAVE_SIZE);
-            return  1;
-        }
+//            memset(usart3_handle_4g.save_buf,0,SAVE_SIZE);
+//            return  1;
+//        }
 
-        // 清空串口接收缓冲区
-        memset(usart3_handle_4g.save_buf,0,SAVE_SIZE);
-    }
+//        // 清空串口接收缓冲区
+//        memset(usart3_handle_4g.save_buf,0,SAVE_SIZE);
+//    }
 
-    // 清空串口接收缓冲区
-    memset(usart3_handle_4g.save_buf,0,SAVE_SIZE);
-    return  0;
+//    // 清空串口接收缓冲区
+//    memset(usart3_handle_4g.save_buf,0,SAVE_SIZE);
+//    return  0;
 
-}
+//}
 
 // 获取4G实时时间
 void get_real_time(bool delay_way)
@@ -696,7 +696,7 @@ void air_4g_MPUB(uint8_t car_state)
                 mqtt_pub_inform.vehicleStatus = 0x01;
                 if(battery_data.charge_overflag == DISABLE && mqtt_pub_inform.start_summary_flag == DISABLE)
                 {
-                    sprintf(mqtt_pub_inform.PubBuf,"AT+MPUB=\"%s\",0,0,\"{\\22ID\\22:%d,\\22params\\22:{\\22senser:temperatureHumiditySensor1Temp\\22:%d,\\22senser:temperatureHumiditySensor1Humi\\22:%d,\\22senser:temperatureHumiditySensor2Temp\\22:%d,\\22senser:temperatureHumiditySensor2Humi\\22:%d,\\22senser:liquidLevelSensor\\22:%d,\\22driverMpuTemp\\22:%d,\\22driverBoxTemp1\\22:%d,\\22driverBoxTemp2\\22:%d,\\22driverMcuTemp\\22:%d,\\22battery:realTimeCurrent\\22:%d,\\22battery:batteryWarningStatus\\22:%d,\\22battery:capacitySoc\\22:%d,\\22battery:batteryVoltageTotal\\22:%d,\\22battery:electricCoreVoltageMax\\22:%d,\\22battery:electricCoreVoltageMin\\22:%d,\\22battery:batteryEnvironmentTemp\\22:%d,\\22battery:batteryTemp1\\22:%d,\\22battery:batteryTemp2\\22:%d,\\22battery:batteryTemp3\\22:%d,\\22battery:batteryTemp4\\22:%d,\\22basic:longitude\\22:\\22%s\\22,\\22basic:latitude\\22:\\22%s\\22,\\22basic:vehicleStatus\\22:%d,\\22debug:openMainBoxCheck\\22:%d,\\22debug:openDriverBoxCheck\\22:%d,\\22debug:gpsSignal\\22:%d,\\22debug:cellularSignalQuality\\22:%d,},\\22method\\22:\\22thing.event.property.post\\22}\"\r"
+                    sprintf(mqtt_pub_inform.PubBuf,"AT+MPUB=\"%s\",0,0,\"{\\22ID\\22:%d,\\22params\\22:{\\22senser:temperatureHumiditySensor1Temp\\22:%d,\\22senser:temperatureHumiditySensor1Humi\\22:%d,\\22senser:temperatureHumiditySensor2Temp\\22:%d,\\22senser:temperatureHumiditySensor2Humi\\22:%d,\\22senser:liquidLevelSensor\\22:%d,\\22driverMpuTemp\\22:%d,\\22driverBoxTemp1\\22:%d,\\22driverBoxTemp2\\22:%d,\\22driverMcuTemp\\22:%d,\\22battery:realTimeCurrent\\22:%d,\\22battery:batteryWarningStatus\\22:%d,\\22battery:capacitySoc\\22:%d,\\22battery:batteryVoltageTotal\\22:%d,\\22battery:electricCoreVoltageMax\\22:%d,\\22battery:electricCoreVoltageMin\\22:%d,\\22battery:batteryEnvironmentTemp\\22:%d,\\22battery:batteryTemp1\\22:%d,\\22battery:batteryTemp2\\22:%d,\\22battery:batteryTemp3\\22:%d,\\22battery:batteryTemp4\\22:%d,\\22basic:longitude\\22:\\22%s\\22,\\22basic:latitude\\22:\\22%s\\22,\\22basic:altitude\\22:%d,\\22basic:vehicleStatus\\22:%d,\\22debug:openMainBoxCheck\\22:%d,\\22debug:openDriverBoxCheck\\22:%d,\\22debug:gpsSignal\\22:%d,\\22debug:cellularSignalQuality\\22:%d,},\\22method\\22:\\22thing.event.property.post\\22}\"\r"
                                 ,mqtt_pub_inform.theme_str
                                 ,100
 
@@ -733,6 +733,7 @@ void air_4g_MPUB(uint8_t car_state)
                                 // 主控模块
                                 ,gps_info.Lon_nowstr                            // 经度
                                 ,gps_info.Lat_nowstr                            // 纬度
+                                ,gps_info.MSL_Altitude                          // 高度
                                 ,mqtt_pub_inform.vehicleStatus                  // 车辆状态01；关机
 
                                 // 汇总数据
@@ -796,7 +797,7 @@ void air_4g_MPUB(uint8_t car_state)
         case OPEN:
             {
                 mqtt_pub_inform.vehicleStatus = 0x02;
-                sprintf(mqtt_pub_inform.PubBuf,"AT+MPUB=\"%s\",0,0,\"{\\22ID\\22:%d,\\22params\\22:{\\22senser:temperatureHumiditySensor1Temp\\22:%d,\\22senser:temperatureHumiditySensor1Humi\\22:%d,\\22senser:temperatureHumiditySensor2Temp\\22:%d,\\22senser:temperatureHumiditySensor2Humi\\22:%d,\\22senser:waterPressureSensor\\22:%d,\\22motorWaterPump\\22:%d,\\22senser:liquidLevelSensor\\22:%d,\\22battery:realTimeCurrent\\22:%d,\\22battery:batteryWarningStatus\\22:%d,\\22battery:capacitySoc\\22:%d,\\22battery:batteryVoltageTotal\\22:%d,\\22battery:electricCoreVoltageMax\\22:%d,\\22battery:electricCoreVoltageMin\\22:%d,\\22battery:batteryEnvironmentTemp\\22:%d,\\22battery:batteryTemp1\\22:%d,\\22battery:batteryTemp2\\22:%d,\\22battery:batteryTemp3\\22:%d,\\22battery:batteryTemp4\\22:%d,\\22basic:longitude\\22:\\22%s\\22,\\22basic:latitude\\22:\\22%s\\22,\\22basic:vehicleStatus\\22:%d,\\22debug:openMainBoxCheck\\22:%d,\\22debug:openDriverBoxCheck\\22:%d,\\22debug:gpsSignal\\22:%d,\\22debug:cellularSignalQuality\\22:%d,},\\22method\\22:\\22thing.event.property.post\\22}\"\r"
+                sprintf(mqtt_pub_inform.PubBuf,"AT+MPUB=\"%s\",0,0,\"{\\22ID\\22:%d,\\22params\\22:{\\22senser:temperatureHumiditySensor1Temp\\22:%d,\\22senser:temperatureHumiditySensor1Humi\\22:%d,\\22senser:temperatureHumiditySensor2Temp\\22:%d,\\22senser:temperatureHumiditySensor2Humi\\22:%d,\\22senser:waterPressureSensor\\22:%d,\\22motorWaterPump\\22:%d,\\22senser:liquidLevelSensor\\22:%d,\\22battery:realTimeCurrent\\22:%d,\\22battery:batteryWarningStatus\\22:%d,\\22battery:capacitySoc\\22:%d,\\22battery:batteryVoltageTotal\\22:%d,\\22battery:electricCoreVoltageMax\\22:%d,\\22battery:electricCoreVoltageMin\\22:%d,\\22battery:batteryEnvironmentTemp\\22:%d,\\22battery:batteryTemp1\\22:%d,\\22battery:batteryTemp2\\22:%d,\\22battery:batteryTemp3\\22:%d,\\22battery:batteryTemp4\\22:%d,\\22basic:longitude\\22:\\22%s\\22,\\22basic:latitude\\22:\\22%s\\22,\\22basic:altitude\\22:%d,\\22basic:vehicleStatus\\22:%d,\\22debug:openMainBoxCheck\\22:%d,\\22debug:openDriverBoxCheck\\22:%d,\\22debug:gpsSignal\\22:%d,\\22debug:cellularSignalQuality\\22:%d,},\\22method\\22:\\22thing.event.property.post\\22}\"\r"
                                 ,mqtt_pub_inform.theme_str					        // TOPIC
                                 ,101												// ID
 
@@ -829,6 +830,7 @@ void air_4g_MPUB(uint8_t car_state)
                                 // 主控模块
                                 ,gps_info.Lon_nowstr                			    // 经度
                                 ,gps_info.Lat_nowstr                			    // 纬度
+                                ,gps_info.MSL_Altitude                        // 高度
                                 ,mqtt_pub_inform.vehicleStatus      			    // 车辆状态
 
                                 // 汇总数据
@@ -884,7 +886,7 @@ void air_4g_MPUB(uint8_t car_state)
                 else
                 {
                     mqtt_pub_inform.rundata_turn_count=0;
-                    sprintf(mqtt_pub_inform.PubBuf,"AT+MPUB=\"%s\",0,0,\"{\\22ID\\22:%d,\\22params\\22:{\\22senser:temperatureHumiditySensor1Temp\\22:%d,\\22senser:temperatureHumiditySensor1Humi\\22:%d,\\22senser:temperatureHumiditySensor2Temp\\22:%d,\\22senser:temperatureHumiditySensor2Humi\\22:%d,\\22driverMpuTemp\\22:%d,\\22driverBoxTemp1\\22:%d,\\22driverBoxTemp2\\22:%d,\\22driverMcuTemp\\22:%d,\\22battery:batteryWarningStatus\\22:%d,\\22battery:batteryVoltageTotal\\22:%d,\\22battery:electricCoreVoltageMax\\22:%d,\\22battery:electricCoreVoltageMin\\22:%d,\\22battery:batteryEnvironmentTemp\\22:%d,\\22battery:batteryTemp1\\22:%d,\\22battery:batteryTemp2\\22:%d,\\22battery:batteryTemp3\\22:%d,\\22battery:batteryTemp4\\22:%d,\\22motor:state\\22:%d,\\22motor:temp1\\22:%d,\\22motor:temp2\\22:%d,\\22motor:temp3\\22:%d,\\22motor:temp4\\22:%d,\\22debug:gpsSignal\\22:%d,\\22debug:cellularSignalQuality\\22:%d,},\\22method\\22:\\22thing.event.property.post\\22}\"\r"
+                    sprintf(mqtt_pub_inform.PubBuf,"AT+MPUB=\"%s\",0,0,\"{\\22ID\\22:%d,\\22params\\22:{\\22senser:temperatureHumiditySensor1Temp\\22:%d,\\22senser:temperatureHumiditySensor1Humi\\22:%d,\\22senser:temperatureHumiditySensor2Temp\\22:%d,\\22senser:temperatureHumiditySensor2Humi\\22:%d,\\22driverMpuTemp\\22:%d,\\22driverBoxTemp1\\22:%d,\\22driverBoxTemp2\\22:%d,\\22driverMcuTemp\\22:%d,\\22battery:batteryWarningStatus\\22:%d,\\22battery:batteryVoltageTotal\\22:%d,\\22battery:electricCoreVoltageMax\\22:%d,\\22battery:electricCoreVoltageMin\\22:%d,\\22battery:batteryEnvironmentTemp\\22:%d,\\22battery:batteryTemp1\\22:%d,\\22battery:batteryTemp2\\22:%d,\\22battery:batteryTemp3\\22:%d,\\22battery:batteryTemp4\\22:%d,\\22motor:state\\22:%d,\\22motor:temp1\\22:%d,\\22motor:temp2\\22:%d,\\22motor:temp3\\22:%d,\\22motor:temp4\\22:%d,\\22debug:gpsSignal\\22:%d,\\22debug:cellularSignalQuality\\22:%d,\\22basic:altitude\\22:%d,},\\22method\\22:\\22thing.event.property.post\\22}\"\r"
                                     ,mqtt_pub_inform.theme_str
                                     ,104
 
@@ -921,6 +923,9 @@ void air_4g_MPUB(uint8_t car_state)
                                     // 调试模块
                                     ,gps_info.gps_signal_flag				        // GPS信号标志位，上报值第二位
                                     ,air_4g_connect.sim_CSQ							// SIM卡蜂窝信号质量
+
+                                    // 主控模块
+                                    ,gps_info.MSL_Altitude                 // 高度
                                 );
                 }
             }

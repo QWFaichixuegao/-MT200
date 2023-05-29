@@ -236,12 +236,12 @@ void device_init(void)
 	mqtt_pub_inform.start_summary_flag  = DISABLE;		// 开机默认不会上报汇总信息
 	mqtt_pub_inform.start_charge_flag   = DISABLE;
 
-	sing_work_event.power				= 0;//--
-    sing_work_event.start_power         = 0;
-	sing_work_event.drug				= 0;//--
-    sing_work_event.start_drug          = 0;
-	sing_work_event.save_track_count	= 0;
-	sing_work_event.mileage				= 0;
+	sing_work_event.power             = 0;
+  sing_work_event.start_power       = 0;
+	sing_work_event.drug              = 0;
+  sing_work_event.start_drug        = 0;
+	sing_work_event.save_track_count  = 0;
+	sing_work_event.mileage           = 0;
 
 	battery_init();
 

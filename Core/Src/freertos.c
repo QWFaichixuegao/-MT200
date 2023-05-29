@@ -199,7 +199,7 @@ void StartTask01(void const * argument)
         {
             control_flag.sTimer_ms_1000 = 0;
             air_4g_connect.air820Count++;
-            if (gps_info.gpsCheckcount < 90)
+            if (gps_info.gpsCheckcount < 120)
             {
               gps_info.gpsCheckcount++;
             }
@@ -278,7 +278,7 @@ void StartTask01(void const * argument)
             }
 
                   //运行状态下每60s检查一次GPS连接
-            if(gps_info.gpsCheckcount == 90)
+            if(gps_info.gpsCheckcount == 120)
             {
               if(control_flag.Car_State == RUN)
               {
@@ -559,17 +559,19 @@ void StartTask03(void const * argument)
 								token = strtok(NULL,",");//分割一次逗号，但时间不在此获取
                 if(gps_info.gps_signal_flag == 0x31 )		    // 第二个逗号到第一个逗号之间的值表示GPS有无获取   0x31：有
                 {
-                    token = strtok(NULL, ",");
+                    token = strtok(NULL, ",");//获取纬度
 
                     //if(token[0] > 0x2f && token[0] < 0x3a)
                     if(token[0] > 0x30 && token[0] < 0x3a)
                     {
-                        //strcpy((char *)gps_info.GPSlat_nowstr, token);
-                        strcpy((char *)gps_info.Lat_nowstr, token);
-                        token = strtok(NULL, ",");
-                        //strcpy((char *)gps_info.GPSlon_nowstr,token);
-                        strcpy((char *)gps_info.Lon_nowstr,token);
+                        strcpy((char *)gps_info.Lat_nowstr, token);//拷贝纬度
 
+                        token = strtok(NULL, ",");//获取纬度
+                        strcpy((char *)gps_info.Lon_nowstr,token);//拷贝纬度
+
+                        token = strtok(NULL, ".");//获取高程
+                        gps_info.MSL_Altitude = atoi(token);
+                        // strcpy((char *)gps_info.Msl_nowstr,token);//拷贝高程
 
                         if(control_flag.save_turn_flag == SET)
                         {

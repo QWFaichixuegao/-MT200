@@ -157,22 +157,15 @@ typedef enum
 // GPS数据解析存储区
 typedef struct
 {
-	  uint16_t    distanceDif;
+    uint16_t    distanceDif;
+    int         MSL_Altitude;
     uint8_t	    Lon_nowstr[16];
     uint8_t	    Lat_nowstr[16];
-
-    uint8_t	    GPSlon_nowstr[16];
-    uint8_t	    GPSlat_nowstr[16];
-
-    uint8_t	    LBSlon_nowstr[16];
-    uint8_t	    LBSlat_nowstr[16];
 	  uint8_t 		gps_signal_flag;	    // GPS信号获取标志位
     uint8_t 		lbs_signal_flag;	    // GPS信号获取标志位
 		uint8_t     gpsUrc;                 // GPS当前上报间隔，1和5
     uint8_t     gpsUrcSet;              // GPS上报间隔设置值
     uint8_t     gpsCheckcount;              // 运行状态下GPS计数检查累计
-
-
 }GPS_HANDLE;
 extern GPS_HANDLE gps_info;
 
