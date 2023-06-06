@@ -1306,7 +1306,7 @@ void car_state_trans(void)
                     if(Remote[SBUS_X2] < SBUS_mid_L_limit | Remote[SBUS_X2] > SBUS_mid_R_limit)
                     {
                         control_flag.count_turn++;				// 遥控器接受空闲中断里已累计10次处理一次
-                        if(control_flag.count_turn > 20)	    // 遥感打方向超过两秒存储一次坐标
+                        if(control_flag.count_turn > 15)	    // 遥感打方向超过两秒存储一次坐标
                         {
                             control_flag.save_turn_flag = SET;  // 遥控器遥感转向判定，存储坐标使能
                             control_flag.count_turn = 0;

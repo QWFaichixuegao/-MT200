@@ -62,7 +62,7 @@ typedef struct
     char        theme_str[128];
     char        work_event_Main[128];
     char        work_event_Track[128];
-	char        PubBuf[2048];				// 由512改为2048
+    char        PubBuf[2048];				// 由512改为2048
     char        Pub_work_event_Buf[2048];
 
 } MQTT_PUB_INFORM;
@@ -173,7 +173,7 @@ extern GPS_HANDLE gps_info;
 typedef struct
 {
     uint8_t		Utc_nowstr[16];
-		uint32_t  timestamp;
+		volatile  uint32_t  timestamp;
 
 }TIMER_HANDLE1;
 extern TIMER_HANDLE1 timer_info;

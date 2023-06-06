@@ -289,7 +289,6 @@ typedef struct {
 uint32_t    mileage;
 uint32_t    start_drug;
 uint32_t    drug;
-uint32_t    coverbuf;               //补位
 uint8_t     recordID[64];
 uint8_t     start_date[16];         // 开始数据
 uint8_t	    end_date[16];           // 结束数据
