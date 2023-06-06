@@ -481,7 +481,12 @@ void moto_ack_handle(void)
             {
                 can_read_data.Hall_rate = ~can_read_data.Hall_rate;
             }
-            can_read_data.Speed = can_read_data.Hall_rate*750/650;
+            can_read_data.Speed = can_read_data.Hall_rate*0.9*750/650;
+
+            if(can_read_data.Speed > 1400) {
+              can_read_data.Speed = 1400;
+            }
+
             if(control_flag.Car_State == RUN) {
                 sing_work_event.mileage = sing_work_event.mileage + can_read_data.Speed;//里程累计1秒1次
             }

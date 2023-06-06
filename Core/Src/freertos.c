@@ -208,19 +208,12 @@ void StartTask01(void const * argument)
             {
                 if(control_flag.event_mpub_single_flag == TRUE)
                 {
-                    if(sing_work_event.send_count == TRUE)
-                    {
-                        air_4g_MPUB_event(WORK_EVENT_MAIN);
-                        sing_work_event.send_count = FALSE;
-                    }
-                    else
-                    {
-                        control_flag.event_mpub_single_flag = FALSE;
-                        air_4g_MPUB_event(WORK_EVENT_TRACK);
-                        memset(&sing_work_event,0,sizeof(sing_work_event));//上报完后清空运行记录结构体数据
-                    }
+                  air_4g_MPUB_event(WORK_EVENT_MAIN);
+                  air_4g_MPUB_event(WORK_EVENT_TRACK);
+                  while (huart3.gState != HAL_UART_STATE_READY){}
+                  memset(&sing_work_event,0,sizeof(sing_work_event));//上报完后清空运行记录结构体数据
+                  control_flag.event_mpub_single_flag = FALSE;
                 }
-                 //if(control_flag.event_mpub_single_flag == FALSE)
                 else
                 {
                     if(control_flag.Car_State == RUN)

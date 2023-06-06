@@ -1058,9 +1058,9 @@ void air_4g_MPUB(uint8_t car_state)
 						}
             break;
     }
-    char lenbuf[16];
-    sprintf(lenbuf,"mqttlen:%d",strlen(mqtt_pub_inform.PubBuf));
-    HAL_UART_Transmit_DMA(&huart3,(uint8_t*)lenbuf,strlen(lenbuf));
+    // char lenbuf[16];
+    // sprintf(lenbuf,"mqttlen:%d",strlen(mqtt_pub_inform.PubBuf));
+    // HAL_UART_Transmit_DMA(&huart3,(uint8_t*)lenbuf,strlen(lenbuf));
     vTaskDelay(10);
 
     HAL_UART_Transmit_DMA(&huart3, (uint8_t*)mqtt_pub_inform.PubBuf, strlen(mqtt_pub_inform.PubBuf));
@@ -1077,6 +1077,9 @@ void air_4g_MPUB(uint8_t car_state)
 // 4G模块上报当次运行记录数据
 void air_4g_MPUB_event(uint8_t eventid)
 {
+    while (huart3.gState != HAL_UART_STATE_READY){}
+    memset(mqtt_pub_inform.PubBuf,0,sizeof(mqtt_pub_inform.Pub_work_event_Buf));
+
 		time_t changeUTC = timer_info.timestamp;//不+28800，IOT目前用UTC
 		switch(eventid)
 		{
@@ -1129,10 +1132,10 @@ void air_4g_MPUB_event(uint8_t eventid)
 				case DEFAUT_EVENT:
 						break;
 		}
-        vTaskDelay(10);
+    vTaskDelay(10);
 		HAL_UART_Transmit_DMA(&huart3, (uint8_t*)mqtt_pub_inform.Pub_work_event_Buf, strlen(mqtt_pub_inform.Pub_work_event_Buf));
-		vTaskDelay(100);
-		memset(mqtt_pub_inform.PubBuf,0,sizeof(mqtt_pub_inform.Pub_work_event_Buf));
+		// vTaskDelay(100);
+		// memset(mqtt_pub_inform.PubBuf,0,sizeof(mqtt_pub_inform.Pub_work_event_Buf));
 }
 
 
