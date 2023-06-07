@@ -988,9 +988,6 @@ void air_4g_MPUB(uint8_t car_state)
                 {
                     //发送一次最后电源连接的时间和充电剩余时间
                     mqtt_pub_inform.start_charge_flag = DISABLE;
-                    // strcpy((char *)battery_data.lastChargeTime, (const char *)timer_info.Utc_nowstr);
-                    // battery_data.timestamp = (uint64_t)StringToTimeStamp(battery_data.lastChargeTime);
-
                     time_t changeUTC = timer_info.timestamp;//不+28800，IOT目前用UTC
                     battery_data.timestamp = changeUTC;
 
@@ -1080,13 +1077,11 @@ void air_4g_MPUB_event(uint8_t eventid)
     while (huart3.gState != HAL_UART_STATE_READY){}
     memset(mqtt_pub_inform.PubBuf,0,sizeof(mqtt_pub_inform.Pub_work_event_Buf));
 
-		time_t changeUTC = timer_info.timestamp;//不+28800，IOT目前用UTC
+		time_t *changeUTC = &timer_info.timestamp;//不+28800，IOT目前用UTC
 		switch(eventid)
 		{
 				case WORK_EVENT_MAIN:
-						memcpy(timer_info.Utc_nowstr, TimeStampToString(&changeUTC),14);// 从不断累计的时间戳转化成时间字符串记录结束时间
-
-						strcpy((char *)sing_work_event.end_date, (const char *)timer_info.Utc_nowstr);
+						strcpy((char *)sing_work_event.end_date, (const char *)TimeStampToString(changeUTC));// 从不断累计的时间戳转化成时间字符串记录结束时间
 
 						strcpy((char *)sing_work_event.latitude, (const char *)gps_info.Lat_nowstr);
 
