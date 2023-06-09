@@ -514,7 +514,7 @@ void StartTask02(void const * argument)
         control_flag.cTimer_ms_3000++;
         control_flag.cTimer_ms_5000++;
         control_flag.cTimer_ms_60000++;
-        osDelay(90);
+        osDelay(80);//20230608自主导航修改减少给定速度控制的时间
     }
   /* USER CODE END StartTask02 */
 }

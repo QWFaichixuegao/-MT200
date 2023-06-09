@@ -637,93 +637,123 @@ void Pump_control(void)
 // 车辆运行手动控制模式
 void hunkong(uint16_t X2, uint16_t Y2)
 {
-    // 置位APP孪生图履带运动
-    SETBIT(mqtt_pub_inform.runvehicleStatus,14);
+  // 置位APP孪生图履带运动
+  SETBIT(mqtt_pub_inform.runvehicleStatus,14);
+  // if(Remote[SBUS_C] <= SBUS_lw_limit)
+  // {
+  //   control_flag.speed_notific_flag = TRUE;
+  //   //新
+  //   car_moto.x = X2-SBUS_zhongzhi;
+  //   car_moto.y = Y2-SBUS_zhongzhi;
+  //   //
+  //   car_moto.cos = car_moto.x / sqrt(car_moto.x*car_moto.x+car_moto.y*car_moto.y);
+  //   car_moto.sin = car_moto.y / sqrt(car_moto.x*car_moto.x+car_moto.y*car_moto.y);
 
-    control_flag.speed_notific_flag = TRUE;
-    //新
-    car_moto.x = X2-SBUS_zhongzhi;
-    car_moto.y = Y2-SBUS_zhongzhi;
-    //
-    car_moto.cos = car_moto.x / sqrt(car_moto.x*car_moto.x+car_moto.y*car_moto.y);
-    car_moto.sin = car_moto.y / sqrt(car_moto.x*car_moto.x+car_moto.y*car_moto.y);
+  //   if(car_moto.cos<0)
+  //   {
+  //       car_moto.cos=-car_moto.cos;
+  //   }
+  //   if(car_moto.sin<0)
+  //   {
+  //       car_moto.sin=-car_moto.sin;
+  //   }
 
-    if(car_moto.cos<0)
-    {
-        car_moto.cos=-car_moto.cos;
-    }
-    if(car_moto.sin<0)
-    {
-        car_moto.sin=-car_moto.sin;
-    }
+  //   // 前进后退
+  //   if(car_moto.x==0&&car_moto.y!=0)
+  //   {
+  //       #ifdef QRS_TEST_INVERT1_6			                // 测试车
+  //           car_moto.car_left = car_moto.y;
+  //           car_moto.car_right= -car_moto.y;
+  //       #else												// 正式车
+  //           car_moto.car_left = car_moto.y;
+  //           car_moto.car_right= -car_moto.y;
+  //       #endif
+  //   }
 
-    // 前进后退
-    if(car_moto.x==0&&car_moto.y!=0)
-    {
-        #ifdef QRS_TEST_INVERT1_6			                // 测试车
-            car_moto.car_left = car_moto.y;
-            car_moto.car_right= -car_moto.y;
-        #else												// 正式车
-            car_moto.car_left = car_moto.y;
-            car_moto.car_right= -car_moto.y;
-        #endif
-    }
+  //   // 原地转
 
-    // 原地转
+  //   else if(car_moto.x!=0&&car_moto.y>-SBUS_siqu&&car_moto.y<SBUS_siqu)
+  //   {
+  //       #ifdef QRS_TEST_INVERT1_6			                // 测试车
+  //           car_moto.car_left = car_moto.x*TURN_VAR;
+  //           car_moto.car_right= car_moto.x*TURN_VAR;
+  //       #else												// 正式车
+  //           car_moto.car_left = -car_moto.x*TURN_VAR;
+  //           car_moto.car_right= -car_moto.x*TURN_VAR;
+  //       #endif
+  //       control_flag.speed_notific_flag = FALSE;
+  //   }
 
-    else if(car_moto.x!=0&&car_moto.y>-SBUS_siqu&&car_moto.y<SBUS_siqu)
-    {
-        #ifdef QRS_TEST_INVERT1_6			                // 测试车
-            car_moto.car_left = car_moto.x*TURN_VAR;
-            car_moto.car_right= car_moto.x*TURN_VAR;
-        #else												// 正式车
-            car_moto.car_left = -car_moto.x*TURN_VAR;
-            car_moto.car_right= -car_moto.x*TURN_VAR;
-        #endif
-        control_flag.speed_notific_flag = FALSE;
-    }
+  //   // 右转
+  //   else if(car_moto.x>0&&(car_moto.y<-SBUS_siqu|car_moto.y>SBUS_siqu))
+  //   {
+  //       #ifdef QRS_TEST_INVERT1_6			                // 测试车
+  //           car_moto.car_left = car_moto.y;
+  //           car_moto.car_right= -car_moto.y*car_moto.sin;
+  //       #else												// 正式车
+  //           car_moto.car_left = car_moto.y*car_moto.sin;
+  //           car_moto.car_right= -car_moto.y;
+  //       #endif
+  //   }
 
-    // 右转
-    else if(car_moto.x>0&&(car_moto.y<-SBUS_siqu|car_moto.y>SBUS_siqu))
-    {
-        #ifdef QRS_TEST_INVERT1_6			                // 测试车
-            car_moto.car_left = car_moto.y;
-            car_moto.car_right= -car_moto.y*car_moto.sin;
-        #else												// 正式车
-            car_moto.car_left = car_moto.y*car_moto.sin;
-            car_moto.car_right= -car_moto.y;
-        #endif
-    }
+  //   // 左转
+  //   else if(car_moto.x<0&&(car_moto.y<-SBUS_siqu|car_moto.y>SBUS_siqu))
+  //   {
+  //       #ifdef QRS_TEST_INVERT1_6			                // 测试车
+  //           car_moto.car_left = car_moto.y*car_moto.sin;
+  //           car_moto.car_right=	-car_moto.y;
+  //       #else												// 正式车
+  //           car_moto.car_left = car_moto.y;
+  //           car_moto.car_right=	-car_moto.y*car_moto.sin;
+  //       #endif
+  //   }
 
-    // 左转
-    else if(car_moto.x<0&&(car_moto.y<-SBUS_siqu|car_moto.y>SBUS_siqu))
-    {
-        #ifdef QRS_TEST_INVERT1_6			                // 测试车
-            car_moto.car_left = car_moto.y*car_moto.sin;
-            car_moto.car_right=	-car_moto.y;
-        #else												// 正式车
-            car_moto.car_left = car_moto.y;
-            car_moto.car_right=	-car_moto.y*car_moto.sin;
-        #endif
-    }
+  //   // 停止
+  //   else
+  //   {
+  //       car_moto.car_left  = 0;
+  //       car_moto.car_right = 0;
 
-    // 停止
-    else
-    {
-        car_moto.car_left  = 0;
-        car_moto.car_right = 0;
+  //       // 清除APP孪生图履带运动
+  //       CLRBIT(mqtt_pub_inform.runvehicleStatus,14);
+  //       control_flag.speed_notific_flag = FALSE;
+  //   }
 
-        // 清除APP孪生图履带运动
-        CLRBIT(mqtt_pub_inform.runvehicleStatus,14);
-        control_flag.speed_notific_flag = FALSE;
-    }
+  //   // 切换指示灯显示状态
+  //   indicatorLight(INDECATOR_LIGHT_ITEM_MANUAL);
 
-    // 切换指示灯显示状态
-    indicatorLight(INDECATOR_LIGHT_ITEM_MANUAL);
+  //   // 输出电机速度指令
+  //   send_moto_cmd(MOTO1_Velocity, MOTO_REGIS_NUM1, -car_moto.car_left	* ROL_VAR, MOTO_Control_ID);
+  //   send_moto_cmd(MOTO2_Velocity, MOTO_REGIS_NUM1, -car_moto.car_right * ROL_VAR, MOTO_Control_ID);
+  // }
+  // else if(Remote[SBUS_C] == SBUS_zhongzhi)
+  // {
+  //   //C中值时进入自动模式此时速度控制由通道3（左轮）、通道4（右轮）接管
+  //   // car_moto.leftwhel = (Remote[SBUS_Y1]-SBUS_zhongzhi)*ROL_VAR3;
+  //   // car_moto.rightwhel = (Remote[SBUS_X1]-SBUS_zhongzhi)*ROL_VAR3;
+	// 	car_moto.leftwhel =  Remote[SBUS_Y1]-SBUS_zhongzhi;
+  //   car_moto.rightwhel = Remote[SBUS_X1]-SBUS_zhongzhi;
+  //   // 输出电机速度指令
+  //   // send_moto_cmd(MOTO2_Velocity, MOTO_REGIS_NUM1, car_moto.leftwhel, MOTO_Control_ID);
+  //   // send_moto_cmd(MOTO1_Velocity, MOTO_REGIS_NUM1, -car_moto.rightwhel, MOTO_Control_ID);
+  // }
 
+  if(Remote[SBUS_C] <= SBUS_lw_limit)
+  {
+    car_moto.leftwhel = (Remote[SBUS_X2]-SBUS_zhongzhi2)*ROL_VAR;
+    car_moto.rightwhel = (Remote[SBUS_Y1]-SBUS_zhongzhi2)*ROL_VAR;
+    send_moto_cmd(MOTO2_Velocity, MOTO_REGIS_NUM1, car_moto.leftwhel, MOTO_Control_ID);
+    send_moto_cmd(MOTO1_Velocity, MOTO_REGIS_NUM1, -car_moto.rightwhel, MOTO_Control_ID);
+  }
+  else if(Remote[SBUS_C] == SBUS_zhongzhi)
+  {
+    // C中值时进入自动模式此时速度控制由通道3（左轮）、通道4（右轮）接管
+    car_moto.leftwhel = (Remote[SBUS_X2]-SBUS_zhongzhi)*ROL_VAR2;
+    car_moto.rightwhel = (Remote[SBUS_Y1]-SBUS_zhongzhi)*ROL_VAR2;
     // 输出电机速度指令
-    send_moto_cmd(MOTO1_Velocity, MOTO_REGIS_NUM1, -car_moto.car_left	* ROL_VAR, MOTO_Control_ID);
-    send_moto_cmd(MOTO2_Velocity, MOTO_REGIS_NUM1, -car_moto.car_right * ROL_VAR, MOTO_Control_ID);
+    send_moto_cmd(MOTO2_Velocity, MOTO_REGIS_NUM1, car_moto.leftwhel, MOTO_Control_ID);
+    send_moto_cmd(MOTO1_Velocity, MOTO_REGIS_NUM1, -car_moto.rightwhel, MOTO_Control_ID);
+  }
 }
 
 // 车辆运行定速控制模式

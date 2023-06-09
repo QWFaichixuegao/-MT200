@@ -235,10 +235,11 @@ typedef enum
 #define GEAR3_SPEED  			700 						// 自动3档速度
 #define TURN_VAR  				0.4   					    // 原地转速度比例
 #define ROL_VAR  				13 							// 10000÷720=13.88 峰值9360 电机调速峰值10000 单位0.01% 即拉满93.60%的速度(3000*93.60%)
-
+#define ROL_VAR2 				7								//导航用比例小720*7 峰值5040
 #define SBUS_MAX  				1713                        // 表示最大值
 #define SBUS_MIN  				273                         // 表示最小值
 #define SBUS_zhongzhi  			993                         // 表示中间值
+#define SBUS_zhongzhi2  		992                       // 云卓导航用通道1、3的中间值
 #define SBUS_siqu  				200                         // 原地转锥形大小   则差速锥形大小为 720 - SBUS_siqu
 #define SBUS_pianyi  	 		50                          // 偏移大小
 #define SBUS_pianyi2  	        300                         // 用作开关的摇杆偏移大小
@@ -275,6 +276,8 @@ typedef struct
     int16_t 	y;
     int16_t  	car_left;
     int16_t  	car_right;
+    int16_t  	leftwhel;
+    int16_t  	rightwhel;
     float 		cos;
     float 	   	sin;
 }CAR_MOTO;
