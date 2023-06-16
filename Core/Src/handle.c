@@ -980,9 +980,8 @@ void sbus_unlock(void)
 	send_moto_cmd(MOTO2_Launch, MOTO_REGIS_NUM1, 0xFF00, MOTO_Control_ID);
 
 	// 解锁的瞬间记录运行记录的开始数据
-	time_t changeUTC = timer_info.timestamp;                                // 不+28800，IOT目前用UTC
-	memcpy(sing_work_event.start_date, TimeStampToString(&changeUTC),14);   // 从不断累计得时间戳转化成时间字符串记录开始时间
-
+	time_t *changeUTC2 = &timer_info.timestamp;                                // 不+28800，IOT目前用UTC
+  strcpy((char *)sing_work_event.start_date, (const char *)TimeStampToString(changeUTC2));// 从不断累计得时间戳转化成时间字符串记录开始时间
 	sing_work_event.start_power = battery_data.soc;                         // 记录开始电量
 	sing_work_event.start_drug  = spraySensor_waterLevel;    // 记录开始药量
 	sing_work_event.mileage = 0;                                            // 解锁前清零一次里程

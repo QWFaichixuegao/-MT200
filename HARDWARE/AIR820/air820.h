@@ -173,7 +173,7 @@ extern GPS_HANDLE gps_info;
 typedef struct
 {
     uint8_t		Utc_nowstr[16];
-		volatile  uint32_t  timestamp;
+		uint32_t  timestamp;
 
 }TIMER_HANDLE1;
 extern TIMER_HANDLE1 timer_info;
