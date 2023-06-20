@@ -104,7 +104,7 @@ void air_4g_init(uint8_t connectMode, uint8_t delay_way)
     {
         air_4g_OTAMPUB(delay_way);
         air_4g_OTASUB(delay_way);
-		topic_sub(delay_way);
+        topic_sub(delay_way);
         air_4g_flag.MQTT_flag = TRUE;
     }
 
@@ -119,48 +119,27 @@ uint8_t air_4g_openURC(uint8_t delay_way)
 {
     // 打开GPS
     air4g_send_cmd("AT+CGNSPWR=1\r", "OK" , 100, delay_way);
-
     // 使能辅助定位
 		air4g_send_cmd("AT+CGNSAID=31,1,1,1\r", "OK", 100, delay_way);
-
     // 设置GPS上报频率为10秒1次
     air4g_send_cmd("AT+CGNSURC=10\r", "OK", 100, delay_way);
-    gps_info.gpsUrc                             = 1;
-
-    // 打开CSQ主动上报
-//    air4g_send_cmd("AT*CSQ=1\r", "OK", 100, delay_way);
-
+    //当前为10S一次  当其与设定值(gpsUrcSet)不一致时，会在任务一中紧接着调整GPS频率
+    gps_info.gpsUrc                             = 10;
     return 0;
 }
 
 // 关闭主动上报
 uint8_t air_4g_closeURC(uint8_t delay_way)
 {
-    // 打开GPS
-    // air4g_send_cmd("AT+CGNSPWR=1\r", "OK" , 100, delay_way);
-
-    // 使能辅助定位
-	// air4g_send_cmd("AT+CGNSAID=31,1,1,1\r", "OK", 100, delay_way);
-
     // 设置GPS上报频率为1秒0次，关闭
     air4g_send_cmd("AT+CGNSURC=0\r", "OK", 100, delay_way);
-    gps_info.gpsUrc                             = 1;
-
-//    // 关闭CSQ主动上报
-//    air4g_send_cmd("AT*CSQ=0\r", "OK", 100, delay_way);
-
-
     return 0;
 }
 
 
 // 4G模块重启
-uint8_t air_4g_restar(bool delay_way)
+uint8_t air_4g_restar(uint8_t delay_way)
 {
-
-    // 复位前关闭主动上报的GPS和CSQ
-
-
     // 4G模块复位，要不要采用带接收的方式？
     char buf[11];
     sprintf(buf,"AT+RSTSET\r");
@@ -171,7 +150,7 @@ uint8_t air_4g_restar(bool delay_way)
 }
 
 // 4G模块检查网络状态
-uint8_t air_4g_net_check(bool delay_way)
+uint8_t air_4g_net_check(uint8_t delay_way)
 {
 	// 回显模式关闭
     // air4g_send_cmd("ATE0\r" , "OK" , 500,delay_way);
@@ -187,13 +166,6 @@ uint8_t air_4g_net_check(bool delay_way)
     // 查询GPRS附着状态，+CGATT:1正常附着网络 +CGATT:0 未附着网络，如果未附着，返回附着错误
     if(air4g_send_cmd("AT+CGATT?\r", "+CGATT: 1", 500, delay_way))
         return SIM_CGATT_ERR;
-
-    // 查询网络质量，暂时没有对结果做处理
-    //uint8_t simCSQ = 0;
-    //simCSQ = air4gCSQCheck(0);
-    //if(simCSQ < 5)
-    //    return SIM_CSQ_LOW;
-
     return SIM_OK;
 }
 
@@ -201,18 +173,18 @@ uint8_t air_4g_net_check(bool delay_way)
 uint8_t air_4g_connect_server(uint8_t connectMode, uint8_t delay_way)
 {
 
-    if(connectMode)
-    {
-        // 关闭MQTT连接，刚开机本条指令会返回767错误
-        if(air4g_send_cmd("AT+MDISCONNECT\r", "OK" , 50,delay_way))
-            return MQTT_MDISCONNECT_ERR;
+  if(connectMode)
+  {
+    // 关闭MQTT连接，刚开机本条指令会返回767错误
+    if(air4g_send_cmd("AT+MDISCONNECT\r", "OK" , 50,delay_way))
+        return MQTT_MDISCONNECT_ERR;
 
-        // 关闭TCP连接,刚开机本条指令会返回767错误
-        if(air4g_send_cmd("AT+MIPCLOSE\r", "OK" , 50,delay_way))
-            return MQTT_MIPCLOSE_ERR;
+    // 关闭TCP连接,刚开机本条指令会返回767错误
+    if(air4g_send_cmd("AT+MIPCLOSE\r", "OK" , 50,delay_way))
+        return MQTT_MIPCLOSE_ERR;
 
-        // IP应用设置，IP，本条指令会返回3错误
-        air4g_send_cmd("AT+SAPBR=0,1\r", "OK" , 50,delay_way);
+    // IP应用设置，IP，本条指令会返回3错误
+    air4g_send_cmd("AT+SAPBR=0,1\r", "OK" , 50,delay_way);
 	}
 
 	// 设置承载类型为GPRS
@@ -299,262 +271,35 @@ uint8_t air4g_send_cmd_mqtt(char* sendcmd, char* checkbuf, char* checkbu2, uint1
 	return 0;
 }
 
-
-// 蜂窝信号质量查询
-uint8_t air4gCSQCheck(uint8_t delay_mode)
-{
-    char sendcmd[10];
-    uint8_t len_scmd;
-    uint8_t simCSQ = 0;
-    sprintf(sendcmd,"AT+CSQ\r");
-
-    // 发送指令
-    len_scmd = strlen(sendcmd);
-	HAL_UART_Transmit_DMA(&huart3, (uint8_t*)sendcmd, len_scmd);
-
-    // 延时
-	if(delay_mode)  vTaskDelay (400); else  HAL_Delay(400);
-
-    // 判断AT指令返回结果
-    if(strstr((char*)usart3_handle_4g.save_buf,"+CSQ:")!=NULL)
-    {
-        char *token;
-        token=strtok((char*)usart3_handle_4g.save_buf,":");
-        token=strtok(NULL,",");
-        simCSQ = atoi(token);
-
-        memset(usart3_handle_4g.save_buf,0,SAVE_SIZE);
-        return simCSQ;
-    }
-
-    // 清空串口接收缓冲区
-	memset(usart3_handle_4g.save_buf,0,SAVE_SIZE);
-
-	return  0;
-}
-
-// 基站定位信息查询
-//uint8_t lbsInfoRead(uint8_t delay_mode)
-//{
-//    char sendcmd[20];
-//    uint8_t len_scmd;
-//    sprintf(sendcmd,"AT+CIPGSMLOC=1,1\r");
-
-//    // 发送指令
-//    len_scmd = strlen(sendcmd);
-//    HAL_UART_Transmit_DMA(&huart3, (uint8_t*)sendcmd, len_scmd);
-
-//    // 延时等待消息
-//    for(uint8_t i = 0; i <= 15; i++)
-//    {
-//        if(delay_mode)  vTaskDelay (400); else  HAL_Delay(400);
-
-//        // 判断AT指令返回结果
-//        if(strstr((char*)usart3_handle_4g.save_buf,"+CIPGSMLOC: 0")!=NULL)
-//        {
-//            char *token;
-//            token=strtok((char*)usart3_handle_4g.save_buf,",");
-//            token=strtok(NULL,",");
-//            strcpy((char *)gps_info.LBSlat_nowstr,token);
-//            token=strtok(NULL,",");
-//            strcpy((char *)gps_info.LBSlon_nowstr,token);
-
-//            memset(usart3_handle_4g.save_buf,0,SAVE_SIZE);
-//            return  1;
-//        }
-
-//        // 清空串口接收缓冲区
-//        memset(usart3_handle_4g.save_buf,0,SAVE_SIZE);
-//    }
-
-//    // 清空串口接收缓冲区
-//    memset(usart3_handle_4g.save_buf,0,SAVE_SIZE);
-//    return  0;
-
-//}
-
 // 获取4G实时时间
-void get_real_time(bool delay_way)
+void get_real_time(uint8_t delay_way)
 {
 	air4g_send_cmd("AT+CCLK?\r", "OK", 100, delay_way);
 }
 
 // 获取4G当前信息
-void get_4G_msg(bool delay_way)
+void get_4G_msg(uint8_t delay_way)
 {
 	air4g_send_cmd("ATE0\r", "OK", 50, delay_way);
+  air4g_send_cmd("AT+CSQ\r", "OK", 50, delay_way);		//查询4G信号质量
 	air4g_send_cmd("AT+MQTTSTATU\r", "+MQTTSTATU", 50, delay_way);	//查询MQTT连接状态
-	air4g_send_cmd("AT+CSQ\r", "OK", 50, delay_way);		//查询4G信号质量
 	//..
 }
 
-//gps连接检查 运行模式下
-void gpsCheck(bool delay_way)
-{   //如果GPS丢失关闭并重新打开
-    if(gps_info.gps_signal_flag != 0x31)
-    {
-        air4g_send_cmd("ATE0\r" , "OK" , 20,delay_way);
-        air4g_send_cmd("AT+CGNSURC=0\r" , "OK" , 100 , delay_way);//关闭处理后的GPS信息周期上报
-        air4g_send_cmd("AT+CGNSPWR=0\r" , "OK" , 100,delay_way);//关闭GPS
-
-        air4g_send_cmd("AT+CGNSPWR=1\r" , "OK" , 100 , delay_way);//打开GPS
-        air4g_send_cmd("AT+CGNSAID=31,1,1,1\r" , "OK" , 1000,delay_way);//使能辅助定位
-        air4g_send_cmd("AT+CGNSURC=1\r" , "OK" , 100,delay_way);//设置处理后的GPS信息周期上报  1hz
-        gps_info.gpsCheckcount = 0;
-    }
-}
-
-/*************计算坐标间距离***************/
-void BLTOXY(CRDCARTESIAN * pcc, CRDGEODETIC * pcg, int Datum, int zonewide)
+//GPS关闭并重新打开
+void gpsReset(uint8_t delay_way)
 {
-    double B = pcg->latitude; //纬度
-    double L = pcg->longitude; //经度//纬度度数
+  air4g_send_cmd("ATE0\r" , "OK" , 20,delay_way);
+  air4g_send_cmd("AT+CGNSURC=0\r" , "OK" , 100 , delay_way);//关闭处理后的GPS信息周期上报
+  air4g_send_cmd("AT+CGNSPWR=0\r" , "OK" , 100,delay_way);//关闭GPS
 
-    double L0; //中央经线度数
-    double N; //卯酉圈曲率半径
-    double q2;
-    double x; //高斯平面纵坐标
-    double y; //高斯平面横坐标
-    double s; //赤道至纬度B的经线弧长
-    double f; //参考椭球体扁率
-    double e1; //椭球第一偏心率
-    double a; //参考椭球体长半轴
-    //double b;    //参考椭球体短半轴
-    double a1, a2, a3, a4;
-    double b1, b2, b3, b4;
-    double c0, c1, c2, c3;
-
-    const double IPI = 0.0174532925199433333333; //3.1415926535898/180.0
-
-    int prjno = 0; //投影带号
-    // zonewide 投影带宽带， 3 或者是 6
-    if (zonewide == 6)
-    {
-        prjno = (int) (L / zonewide) + 1;
-        L0 = prjno * zonewide - 3;
-    }
-    else
-    {
-        prjno = (int) ((L - 1.5) / 3) + 1;
-        L0 = prjno * 3;
-    }
-
-    /*
-     * 北京 54
-     * 长半轴a=6378245m
-     * 短半轴b=6356863.0188m
-     * 扁率α=1/298.3
-     * 第一偏心率平方 =0.006693421622966
-     * 第二偏心率平方 =0.006738525414683
-     *
-     * 西安80
-     * 长半轴a=6378140±5（m）
-     * 短半轴b=6356755.2882m
-     * 扁率α=1/298.257
-     * 第一偏心率平方 =0.00669438499959
-     * 第二偏心率平方=0.00673950181947
-     *
-     * WGS84
-     * 长半轴a=6378137± 2（m）
-     * 短半轴b=6356752.3142m
-     * 扁率α=1/298.257223563
-     * 第一偏心率平方 =0.00669437999013
-     * 第二偏心率平方 =0.00673949674223
-     *
-     */
-
-    //Datum 投影基准面类型：北京54基准面为54，西安80基准面为80，WGS84基准面为84
-    if (Datum == 84)
-    {
-        a = 6378137;
-        f = 1 / 298.257223563;
-    }
-    else if (Datum == 54)
-    {
-        a = 6378245;
-        f = 1 / 298.3;
-    }
-    else if (Datum == 80)
-    {
-        a = 6378140;
-        f = 1 / 298.257;
-    }
-
-    e1 = 2 * f - f*f; //(a*a-b*b)/(a*a) 椭球第一偏心率
-
-    L0 = L0*IPI; // 转为弧度
-    L = L*IPI; // 转为弧度
-    B = B*IPI; // 转为弧度
-
-    double sinB = sin(B); //sinB
-    double cosB = cos(B); //cosB
-    double tanB = tan(B); //tanB
-
-    double l = L - L0; //L-L0l
-    double m = l * cosB; //ltanB
-
-    N = a / sqrt(1 - e1 * pow(sinB, 2));
-    q2 = e1 / (1 - e1) * pow(cosB, 2);
-
-    a1 = 1 + 3.0 / 4.0 * e1 + 45.0 / 64.0 * pow(e1, 2) + 175.0 / 256.0 * pow(e1, 3)
-            + 11025.0 / 16384.0 * pow(e1, 4) + 43659.0 / 65536.0 * pow(e1, 5);
-
-    a2 = 3.0 / 4.0 * e1 + 15.0 / 16.0 * pow(e1, 2) + 525.0 / 512.0 * pow(e1, 3)
-            + 2205.0 / 2048.0 * pow(e1, 4) + 72765.0 / 65536.0 * pow(e1, 5);
-
-    a3 = 15.0 / 64.0 * pow(e1, 2) + 105.0 / 256.0 * pow(e1, 3) + 2205.0 / 4096.0
-            * pow(e1, 4) + 10359.0 / 16384.0 * pow(e1, 5);
-
-    a4 = 35.0 / 512.0 * pow(e1, 3) + 315.0 / 2048.0 * pow(e1, 4) + 31185.0 / 13072.0
-            * pow(e1, 5);
-    b1 = a1 * a * (1 - e1);
-    b2 = -1.0 / 2.0 * a2 * a * (1 - e1);
-    b3 = 1.0 / 4.0 * a3 * a * (1 - e1);
-    b4 = -1.0 / 6.0 * a4 * a * (1 - e1);
-    c0 = b1;
-    c1 = 2 * b2 + 4 * b3 + 6 * b4;
-    c2 = -(8 * b3 + 32 * b4);
-    c3 = 32 * b4;
-    s = c0 * B + cosB * (c1 * sinB + c2 * pow(sinB, 3) + c3 * pow(sinB, 5));
-
-    x = s + 0.5 * N * tanB * pow(m, 2) + 1.0 / 24.0 * (5 - pow(tanB, 2) + 9 * q2 + 4
-            * pow(q2, 2)) * N * tanB * pow(m, 4) + 1.0 / 720.0 * (61 - 58 * pow(tanB, 6))
-            * N * tanB * pow(m, 6);
-
-    y = N * m + 1.0 / 6.0 * (1 - pow(tanB, 2) + q2) * N * pow(m, 3) + 1.0 / 120.0
-            * (5 - 18 * tanB * tanB + pow(tanB, 4) - 14 * q2 - 58 * q2 * pow(tanB, 2)) * N * pow(m, 5);
-
-    y = y + 1000000 * prjno + 500000;
-    pcc->x = x;
-    pcc->y = y - 38000000;
-    pcc->z = 0;
-}
-
-
-// 返回值单位是米
-double BLDistance(CRDGEODETIC *pcg1, CRDGEODETIC *pcg2, int Datum, int zonewide)
-{
-    CRDCARTESIAN pcc1, pcc2;
-    BLTOXY(&pcc1, pcg1, Datum, zonewide);
-    BLTOXY(&pcc2, pcg2, Datum, zonewide);
-
-    double xdes = fabs(pcc1.x - pcc2.x);
-    double ydes = fabs(pcc1.y - pcc2.y);
-    double des = sqrt(xdes * xdes + ydes * ydes);
-
-    return des;
-}
-
-// 计算两个经纬度坐标之间的距离，返回值单位为米
-uint16_t BLDistanceDiff(uint8_t *Lon_nowstr1, uint8_t *Lat_nowstr1, uint8_t *Lon_nowstr2, uint8_t *Lat_nowstr2)
-{
-    CRDGEODETIC pcg1 = {atof((char *)Lon_nowstr1), atof((char *)Lat_nowstr1), 0};
-    CRDGEODETIC pcg2 = {atof((char *)Lon_nowstr2), atof((char *)Lat_nowstr2), 0};
-    return (uint16_t)BLDistance(&pcg1, &pcg2, WGS84, ZONEWIDE6);
+  air4g_send_cmd("AT+CGNSPWR=1\r" , "OK" , 100 , delay_way);//打开GPS
+  air4g_send_cmd("AT+CGNSAID=31,1,1,1\r" , "OK" , 1000,delay_way);//使能辅助定位
+  gps_info.gpsUrc = 10;//GPS重新打开后默认当前GPS上报频率为10秒1次
 }
 
 // 打开蓝牙
-void ble_swit_on(bool delay_way)
+void ble_swit_on(uint8_t delay_way)
 {
     // 打开蓝牙及从模式
 	air4g_send_cmd("AT+BTCOMM=ENABLE,1,0\r" , "OK" , 1800 , delay_way);
@@ -1132,52 +877,4 @@ void air_4g_MPUB_event(uint8_t eventid)
 		// vTaskDelay(100);
 		// memset(mqtt_pub_inform.PubBuf,0,sizeof(mqtt_pub_inform.Pub_work_event_Buf));
 }
-
-
-/************************************未使用的函数****************************************/
-
-
-//YY_HANDLE 			yy_module;
-
-
-//// 打开GPS
-//void gps_swit_on(bool delay_way)
-//{
-//	air4g_send_cmd("ATE0\r" , "OK" , 20,delay_way);
-//	air4g_send_cmd("ATE0\r" , "OK" , 20,delay_way);
-//
-//	air4g_send_cmd("AT+CGNSPWR=1\r" , "OK" , 100 , delay_way);			 		//打开GPS
-//	air4g_send_cmd("AT+CGNSAID=31,1,1,1\r" , "OK" , 1000,delay_way);	 		//使能辅助定位
-//	switch(control_flag.Car_State)
-//		{
-//			case CLOSE:
-//				air4g_send_cmd("AT+CGNSURC=10\r" , "OK" , 100,delay_way);       //设置处理后的GPS信息周期上报0.1hz
-//			break;
-//			case OPEN:
-//				air4g_send_cmd("AT+CGNSURC=5\r" , "OK" , 100,delay_way);        //设置处理后的GPS信息周期上报0.2hz
-//			break;
-//			case RUN:
-//				air4g_send_cmd("AT+CGNSURC=1\r" , "OK" , 100,delay_way);        //设置处理后的GPS信息周期上报  1hz
-//			break;
-//			default:
-//				air4g_send_cmd("AT+CGNSURC=10\r" , "OK" , 100,delay_way);       //设置处理后的GPS信息周期上报0.1hz
-//		}
-//}
-
-//// 关闭GPS
-//void gps_swit_off(bool delay_way)
-//{
-//	air4g_send_cmd("ATE0\r" , "OK" , 20,delay_way);
-//	air4g_send_cmd("ATE0\r" , "OK" , 20,delay_way);
-//	air4g_send_cmd("AT+CGNSURC=0\r" , "OK" , 100 , delay_way);//关闭处理后的GPS信息周期上报
-//	air4g_send_cmd("AT+CGNSPWR=0\r" , "OK" , 100,delay_way);//关闭GPS
-//}
-
-//// 4G模块进行语音播报，暂未使用
-//void SPEAK(char* conten)
-//{
-//	sprintf(yy_module.buf_spk,"AT+CTTS=2,\"%s\"\r",conten);
-//	HAL_UART_Transmit_DMA(&huart3,(uint8_t*)yy_module.buf_spk,strlen(yy_module.buf_spk));
-////	memset(yy_module.buf_spk,0,30);
-//}
 

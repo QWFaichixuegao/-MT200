@@ -203,7 +203,7 @@ void StartTask01(void const * argument)
             {
               gps_info.gpsCheckcount++;
             }
-             // 车辆运行数据上报,目前每次慢300ms
+            // 车辆运行数据上报,目前每次慢300ms
             if(air_4g_flag.MQTT_flag == TRUE /* && control_flag.event_mpub_mutex == FALSE && gps_info.LBSRxFlag == FALSE*/)
             {
                 if(control_flag.event_mpub_single_flag == TRUE)
@@ -270,12 +270,18 @@ void StartTask01(void const * argument)
               get_4G_msg(1);// 获取4G当前信息(MQTT连接状态、4G信号质量)
             }
 
-                  //运行状态下每60s检查一次GPS连接
+            //运行状态下每120s检查一次GPS连接
             if(gps_info.gpsCheckcount == 120)
             {
               if(control_flag.Car_State == RUN)
               {
-                gpsCheck(1);
+                if(gps_info.gps_signal_flag != 0x31)
+                {
+                  gpsReset(air_4g_flag.vTa_delay);
+                  gps_info.gpsCheckcount = 0;
+                  gps_info.gpsUrc =10;
+                  gps_info.gpsUrcSet = 1;
+                }
               }
             }
         }
@@ -285,8 +291,8 @@ void StartTask01(void const * argument)
         {
             char gpsBuf[20];
             sprintf(gpsBuf, "AT+CGNSURC=%d\r", gps_info.gpsUrcSet);
-            air4g_send_cmd("ATE0\r", "OK", 50, 1);
-            air4g_send_cmd(gpsBuf, "OK", 100, 1);
+            air4g_send_cmd("ATE0\r", "OK", 50, air_4g_flag.vTa_delay);
+            air4g_send_cmd(gpsBuf, "OK", 100, air_4g_flag.vTa_delay);
             gps_info.gpsUrc = gps_info.gpsUrcSet;
         }
 
@@ -324,10 +330,10 @@ void StartTask01(void const * argument)
             for(uint8_t i = 0; i < 5; i++)
             {
                 vTaskDelay (1000);
-                if(!air4g_send_cmd("ATE0\r", "OK", 500, 1))
+                if(!air4g_send_cmd("ATE0\r", "OK", 500, air_4g_flag.vTa_delay))
                     break;
             }
-            air4g_send_cmd("AT+MQTTSTATU\r", "+MQTTSTATU :1", 200, 1);
+            air4g_send_cmd("AT+MQTTSTATU\r", "+MQTTSTATU :1", 200, air_4g_flag.vTa_delay);
             // 再次检查车辆和MQTT服务器连接是否正常，这里可以检查3次
             if(air_4g_flag.MQTT_flag == TRUE)
             {
