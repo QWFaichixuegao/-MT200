@@ -133,11 +133,11 @@ void control_init(void)
 
     gps_info.gps_signal_flag				    = FALSE;
 
-    air_4g_flag.hal_delay 					    = (bool)FALSE;
-		air_4g_flag.vTa_delay					    = (bool)TRUE;
-		air_4g_flag.SIM_flag 					    = (bool)FALSE;
-		air_4g_flag.MQTT_flag	 				    = (bool)FALSE;
-		air_4g_flag.send_version_flag 	            = (bool)TRUE;
+    air_4g_flag.hal_delay 					    = 0;
+		air_4g_flag.vTa_delay					    = 1;
+		air_4g_flag.SIM_flag 					    = FALSE;
+		air_4g_flag.MQTT_flag	 				    = FALSE;
+		air_4g_flag.send_version_flag 	            = TRUE;
 		air_4g_flag.get_realtime_flag			= FALSE;												//开机开始校准实时时间
 		air_4g_connect.sim_ccount 	 			    = 0;
 		air_4g_connect.mqtt_ccount	 			    = 0;

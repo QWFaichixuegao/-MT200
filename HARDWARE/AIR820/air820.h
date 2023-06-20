@@ -251,16 +251,15 @@ uint8_t air4g_send_cmd_mqtt(char* sendcmd, char* checkbuf, char* checkbu2, uint1
 void air_4g_init(uint8_t connectMode, uint8_t delay_way);
 uint8_t air_4g_openURC(uint8_t delay_way);
 uint8_t air_4g_closeURC(uint8_t delay_way);
-uint8_t air_4g_restar(bool delay_way);
-uint8_t air4gCSQCheck(uint8_t delay_mode);
-uint8_t air_4g_net_check(bool delay_way);
+uint8_t air_4g_restar(uint8_t delay_way);
+uint8_t air_4g_net_check(uint8_t delay_way);
 uint8_t air_4g_connect_server(uint8_t connectMode, uint8_t delay_way);
 void air4gRecCheck(void);
 uint8_t lbsInfoRead(uint8_t delay_mode);
 uint16_t BLDistanceDiff(uint8_t *Lon_nowstr1, uint8_t *Lat_nowstr1, uint8_t *Lon_nowstr2, uint8_t *Lat_nowstr2);
 
-void ble_swit_on(bool delay_way);
-void ble_swit_off(bool delay_way);
+void ble_swit_on(uint8_t delay_way);
+void ble_swit_off(uint8_t delay_way);
 
 void air_4g_MPUB(uint8_t car_state);
 void air_4g_MPUB_event(uint8_t eventid);
@@ -272,9 +271,9 @@ void air_4g_http_otarequest(void);
 
 time_t StringToTimeStamp(uint8_t* timeStr);
 char *TimeStampToString(time_t* timeStamp);
-void get_real_time(bool delay_way);
-void get_4G_msg(bool delay_way);
-void gpsCheck(bool delay_way);
+void get_real_time(uint8_t delay_way);
+void get_4G_msg(uint8_t delay_way);
+void gpsReset(uint8_t delay_way);
 
 void topic_sub(uint8_t delay_way);
 
