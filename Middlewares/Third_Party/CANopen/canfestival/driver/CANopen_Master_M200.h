@@ -139,5 +139,7 @@ extern UNS8 SHT30Environment_softwareVersion[10];		/* Mapped at index 0x300B, su
 extern INTEGER16 SHT30Environment_mcuTempRise;		/* Mapped at index 0x300B, subindex 0x06 */
 extern INTEGER16 SHT30Environment_temperature;		/* Mapped at index 0x300B, subindex 0x07 */
 extern UNS8 SHT30Environment_humidity;		/* Mapped at index 0x300B, subindex 0x08 */
+extern UNS8 SonicSensor_SonicL;		/* Mapped at index 0x300C, subindex 0x01 */
+extern UNS8 SonicSensor_SonicR;		/* Mapped at index 0x300C, subindex 0x02 */
 
 #endif // CANOPEN_MASTER_M200_H
