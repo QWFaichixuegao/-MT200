@@ -245,16 +245,20 @@ void StartTask01(void const * argument)
                         // air_4g_MPUB(control_flag.Car_State);    // 充电状态下发送
                         air_4g_MPUB(RECHARGE);    // 充电状态下发送
                     }
-                    else
-                    {
-                    }
+                    usart1_sbus_tx();// 运行状态下数传发送
+                    while (huart1.gState != HAL_UART_STATE_READY){}
+                    memset(&sbus_pack_data,0,sizeof(sbus_pack_data));
+
+                    while (huart3.gState != HAL_UART_STATE_READY){}
+                    memset(mqtt_pub_inform.PubBuf,0,sizeof(mqtt_pub_inform.PubBuf));
+
                     //else if(control_flag.Car_State == RECHARGE && control_flag.sTimer_ms_60000 == Count_60s)
                     //{
                     //    control_flag.sTimer_ms_60000 = 0;
                     //    air_4g_MPUB(control_flag.Car_State);    // 充电状态下发送
                     //}
                 }
-                vTaskDelay(120);
+                // vTaskDelay(10);
             }
 
             //复位后每秒发送一次获取实时时间指令直到时间校准成功
@@ -449,36 +453,36 @@ void StartTask02(void const * argument)
             batteryReadData();
 
             // 判断风机水泵禁止逻辑
-            if(control_flag.Car_State == RUN)
-            {
-                if(battery_data.soc > BatteryLowSOC_Level1)			// 电量高于一级电量报警值
-                {
-                    battery_data.socState = SOC_ENOUGH;
-                    indicatorLight(LED12VR_LED12VRState);
-                    control_flag.DraughtPumpEnable = TRUE;
-                }
-                else if(battery_data.soc <= BatteryLowSOC_Level1 && battery_data.soc > BatteryLowSOC_Level2)		// 电量低于一级电量报警值，高于二级电量报警值
-                {
-                    control_flag.DraughtPumpEnable = TRUE;
-                    battery_data.socState = SOC_LOW_LEVEL_1;
-                    LED12VR_LED12VRState = INDECATOR_LIGHT_ITEM_SOC_LOW_LEVEL_2;
-                    indicatorLight(LED12VL_LED12VLState);
-                }
-                else if(battery_data.soc <= BatteryLowSOC_Level2)	// 电量低于二级电量报警值
-                {
-                    control_flag.DraughtPumpEnable = FALSE;
-                    battery_data.socState = SOC_LOW_LEVEL_2;
-                    LED12VL_LED12VLState = INDECATOR_LIGHT_ITEM_SOC_LOW_LEVEL_1;
-                    indicatorLight(LED12VR_LED12VRState);
-                }
-                else
-                {
-                    control_flag.DraughtPumpEnable = TRUE;
-                    battery_data.socState = SOC_ENOUGH;
-                    indicatorLight(LED12VR_LED12VRState);
-                    control_flag.DraughtPumpEnable = TRUE;
-                }
-            }
+            // if(control_flag.Car_State == RUN)
+            // {
+            //     if(battery_data.soc > BatteryLowSOC_Level1)			// 电量高于一级电量报警值
+            //     {
+            //         battery_data.socState = SOC_ENOUGH;
+            //         indicatorLight(LED12VR_LED12VRState);
+            //         control_flag.DraughtPumpEnable = TRUE;
+            //     }
+            //     else if(battery_data.soc <= BatteryLowSOC_Level1 && battery_data.soc > BatteryLowSOC_Level2)		// 电量低于一级电量报警值，高于二级电量报警值
+            //     {
+            //         control_flag.DraughtPumpEnable = TRUE;
+            //         battery_data.socState = SOC_LOW_LEVEL_1;
+            //         LED12VR_LED12VRState = INDECATOR_LIGHT_ITEM_SOC_LOW_LEVEL_2;
+            //         indicatorLight(LED12VL_LED12VLState);
+            //     }
+            //     else if(battery_data.soc <= BatteryLowSOC_Level2)	// 电量低于二级电量报警值
+            //     {
+            //         control_flag.DraughtPumpEnable = FALSE;
+            //         battery_data.socState = SOC_LOW_LEVEL_2;
+            //         LED12VL_LED12VLState = INDECATOR_LIGHT_ITEM_SOC_LOW_LEVEL_1;
+            //         indicatorLight(LED12VR_LED12VRState);
+            //     }
+            //     else
+            //     {
+            //         control_flag.DraughtPumpEnable = TRUE;
+            //         battery_data.socState = SOC_ENOUGH;
+            //         indicatorLight(LED12VR_LED12VRState);
+            //         control_flag.DraughtPumpEnable = TRUE;
+            //     }
+            // }
         }
 
         // 5s逻辑：读取电机数据，读取小电池数据
@@ -772,26 +776,6 @@ void Callback01(void const * argument)
     {
 		control_flag.sTimer_ms_60000++;
 	}
-
-
-//	if(control_flag.sTimer_ms_12000<Count_12s){
-//		control_flag.sTimer_ms_12000++;
-//	}
-
-//	INDECATOR_LIGHT_IDLE_NUM ++;
-//	if(INDECATOR_LIGHT_IDLE_NUM > 101)
-//	{
-//        INDECATOR_LIGHT_IDLE = FALSE;
-//        INDECATOR_LIGHT_IDLE_NUM = 0;
-//        WriteSDO(&CANopen_Master_M200_Data, CANDevice_NodeID_indecatorLightL, INDECATOR_LIGHT_INDEX_ITEM, INDECATOR_LIGHT_SUB_INDEX_ITEM, 1, uint8, &LED12VL_LED12VLState, 0);
-//        WriteSDO(&CANopen_Master_M200_Data, CANDevice_NodeID_indecatorLightR, INDECATOR_LIGHT_INDEX_ITEM, INDECATOR_LIGHT_SUB_INDEX_ITEM, 1, uint8, &LED12VR_LED12VRState, 0);
-//	}
-//	else if(INDECATOR_LIGHT_IDLE_NUM > 100)
-//	{
-//        INDECATOR_LIGHT_IDLE = TRUE;
-//        WriteSDO(&CANopen_Master_M200_Data, CANDevice_NodeID_indecatorLightL, INDECATOR_LIGHT_INDEX_ITEM, INDECATOR_LIGHT_SUB_INDEX_ITEM, 1, uint8, &LED12VL_LED12VLStateReset, 0);
-//        WriteSDO(&CANopen_Master_M200_Data, CANDevice_NodeID_indecatorLightR, INDECATOR_LIGHT_INDEX_ITEM, INDECATOR_LIGHT_SUB_INDEX_ITEM, 1, uint8, &LED12VR_LED12VRStateReset, 0);
-//	}
 
   /* USER CODE END Callback01 */
 }

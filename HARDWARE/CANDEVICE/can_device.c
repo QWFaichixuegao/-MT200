@@ -481,7 +481,7 @@ void moto_ack_handle(void)
             {
                 can_read_data.Hall_rate = ~can_read_data.Hall_rate;
             }
-            can_read_data.Speed = can_read_data.Hall_rate*0.6*750/650;//20230615 速度比例更改为0.6
+            can_read_data.Speed = can_read_data.Hall_rate*0.58*750/650;//20230629 速度比例更改为0.55
 
             if(can_read_data.Speed > 1400) {
               can_read_data.Speed = 1400;

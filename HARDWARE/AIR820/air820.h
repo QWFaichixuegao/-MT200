@@ -78,6 +78,15 @@ typedef enum
     Count_60s  	=600,
 } TIME_COUNT_MS;
 
+/*************************************************************状态信息上报(数传)******************************************************************/
+// 车辆显示到APP上的实时状态上报
+typedef struct
+{
+    char       tx_buf[2048];
+	
+} SBUS_PACK;
+extern SBUS_PACK sbus_pack_data;
+
 
 /*************************************************************蓝牙******************************************************************/
 
@@ -268,6 +277,7 @@ void air_4g_OTAREQUEST(void);
 void air_4g_OTASUB(uint8_t delay_way);
 void air_4g_http_otarequest(void);
 
+void usart1_sbus_tx(void);
 
 time_t StringToTimeStamp(uint8_t* timeStr);
 char *TimeStampToString(time_t* timeStamp);
@@ -276,6 +286,8 @@ void get_4G_msg(uint8_t delay_way);
 void gpsReset(uint8_t delay_way);
 
 void topic_sub(uint8_t delay_way);
+
+
 
 // 未使用
 

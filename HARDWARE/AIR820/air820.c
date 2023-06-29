@@ -19,6 +19,7 @@ GPS_HANDLE 					gps_info;
 BLE_INFORM 					ble_inform;
 TIMER_HANDLE1 		        timer_info;
 DESIRED_INFORM             desired_inform;
+SBUS_PACK 					sbus_pack_data;
 
 
 // 字符串转时间戳函数
@@ -804,7 +805,6 @@ void air_4g_MPUB(uint8_t car_state)
     // sprintf(lenbuf,"mqttlen:%d",strlen(mqtt_pub_inform.PubBuf));
     // HAL_UART_Transmit_DMA(&huart3,(uint8_t*)lenbuf,strlen(lenbuf));
     vTaskDelay(10);
-
     HAL_UART_Transmit_DMA(&huart3, (uint8_t*)mqtt_pub_inform.PubBuf, strlen(mqtt_pub_inform.PubBuf));
 
 	// for(int i=0;i<strlen(mqtt_pub_inform.PubBuf);i++)//循环发送数据
@@ -812,8 +812,7 @@ void air_4g_MPUB(uint8_t car_state)
 	// 		while((USART3->SR&0X40)==0){;}//循环发送,直到发送完毕
 	// 		USART3->DR =mqtt_pub_inform.PubBuf[i];
 	// 	}
-	vTaskDelay(100);
-	memset(mqtt_pub_inform.PubBuf,0,sizeof(mqtt_pub_inform.PubBuf));
+
 }
 /*-------------------------------------------------------------事件-------------------------------------------------------------------*/
 // 4G模块上报当次运行记录数据
@@ -874,7 +873,35 @@ void air_4g_MPUB_event(uint8_t eventid)
 		}
     vTaskDelay(10);
 		HAL_UART_Transmit_DMA(&huart3, (uint8_t*)mqtt_pub_inform.Pub_work_event_Buf, strlen(mqtt_pub_inform.Pub_work_event_Buf));
-		// vTaskDelay(100);
-		// memset(mqtt_pub_inform.PubBuf,0,sizeof(mqtt_pub_inform.Pub_work_event_Buf));
+}
+
+void usart1_sbus_tx(void)
+{
+                                                    //{前的\"和}后的\"方便Android端处理这里去调
+		sprintf(sbus_pack_data.tx_buf,"AT+MPUB=\"%s\",0,0,{\\22ID\\22:%d,\\22params\\22:{\\22senser:waterPressureSensor\\22:%d,\\22senser:flowSensor\\22:%d,\\22senser:liquidLevelSensor\\22:%d,\\22motorWaterPump\\22:%d,\\22fanMachinery\\22:%d,\\22battery:capacitySoc\\22:%d,\\22basic:longitude\\22:\\22%s\\22,\\22basic:latitude\\22:\\22%s\\22,\\22basic:vehicleStatus\\22:%d,\\22basic:vehicleSpeed\\22:%d},\\22method\\22:\\22thing.event.property.post\\22}\r"
+										,mqtt_pub_inform.theme_str
+										,200
+										// 传感器模块
+										,spraySensor_waterPressure                  // 水压 每KPa
+										,spraySensor_waterFlow/1000                 // 流量 每1ml
+										,spraySensor_waterLevel/100                 // 水位 每10ml
+
+										// 默认模块
+										,mqtt_pub_inform.motorWaterPump             // 水泵功率
+										,mqtt_pub_inform.fanMachinery				// 风机
+
+										// 电池模块
+										,battery_data.soc							// 电池SOC
+
+										// 主电机驱动器
+
+										// 主控模块
+										,gps_info.Lon_nowstr                        // 经度
+										,gps_info.Lat_nowstr                        // 纬度
+										,mqtt_pub_inform.vehicleStatus              // 车辆状态
+										,mqtt_pub_inform.vehicleSpeed				// 车速
+						);
+    vTaskDelay(10);
+    HAL_UART_Transmit_DMA(&huart1, (uint8_t*)sbus_pack_data.tx_buf, strlen(sbus_pack_data.tx_buf));
 }
 
