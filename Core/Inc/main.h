@@ -85,6 +85,7 @@ void Error_Handler(void);
 #define Light_Check2_GPIO_Port GPIOE
 #define USART3_RES_Pin GPIO_PIN_10
 #define USART3_RES_GPIO_Port GPIOD
+
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
