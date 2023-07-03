@@ -1,5 +1,10 @@
 {
     "files.associations": {
-        "handle.h": "c"
+        "handle.h": "c",
+        "can_device.h": "c",
+        "canopen_master_m200.h": "c",
+        "at24cxx.h": "c",
+        "cmsis_os.h": "c",
+        "air820.h": "c"
     }
 }
