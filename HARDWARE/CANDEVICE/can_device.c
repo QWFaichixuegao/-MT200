@@ -134,33 +134,33 @@ void battery_init(void)
 void batteryTypeRead(void)
 {
     // 确定电池种类
-    // UNS32 size;
-    // size = sizeof(s48100Battery_batterySOC);
-    // for(uint8_t i=0; i<=3; i++ )
-    // {
-    //     if(ReadSDO(&CANopen_Master_M200_Data, 0x04, 0x6300, 0x05, uint16, &s48100Battery_batterySOC, &size, 0) == 0)
-    //     {
+    UNS32 size;
+    size = sizeof(s48100Battery_batterySOC);
+    for(uint8_t i=0; i<=3; i++ )
+    {
+        if(ReadSDO(&CANopen_Master_M200_Data, 0x04, 0x6300, 0x05, uint16, &s48100Battery_batterySOC, &size, 0) == 0)
+        {
         battery_data.battType			= S48100;								//电池种类
         battery_data.soc = s48100Battery_batterySOC / 10;
         strcpy(battery_data.battTypeName, "S48100");
-    //     }
-    //     else
-    //     {
-    //         battery_data.battType			= QC105;								//电池种类,默认
-    //         strcpy(battery_data.battTypeName, "QC105");
-    //     }
-    // }
+        }
+        else
+        {
+            battery_data.battType			= QC105;								//电池种类,默认
+            strcpy(battery_data.battTypeName, "QC105");
+        }
+    }
 
     // 上电读取电池SOC数据
-    // if (battery_data.battType == QC105)
-    // {
-    //     control_flag.bat_read_flag = BAT_ENERGY;
-    //     read_energy_data();		//读取初始电量
-    // }
-    // else if(battery_data.battType == s48100Battery_batterySOC)
-    // {
+    if (battery_data.battType == QC105)
+    {
+        control_flag.bat_read_flag = BAT_ENERGY;
+        read_energy_data();		//读取初始电量
+    }
+    else if(battery_data.battType == s48100Battery_batterySOC)
+    {
         batteryS48100ReadParameter();
-    // }
+    }
 }
 
 
@@ -216,7 +216,7 @@ void batteryS48100PdoDataCopy(void)
 
     // 电压电流参数
     battery_data.voitageCurrent 			= s48100Battery_currentVoltage * 10;		// 电池当前电压
-    battery_data.currentCurrent 			= (int16_t)s48100Battery_currentCurrent;	// 电池当前电流
+    battery_data.currentCurrent 			= s48100Battery_currentCurrent;	// 电池当前电流
 
     // 电池状态
     battery_data.protect_state 				= s48100Battery_protectState;				// 保护状态
@@ -278,7 +278,7 @@ void batteryS48100ReadData(void)
         battery_data.circle 					= 0;      	// 循环次数
 		//battery_data.timestamp 				= 0;        // 已充电时间时间戳形式
 		//battery_data.chargeTimeRemain 		= 0;   		// 充电剩余时间（分钟）
-		//battery_data.dischargeTimeRemain 	    = 0;   		// 放电剩余时间（分钟）
+		battery_data.dischargeTimeRemain 	    = 0;   		// 放电剩余时间（分钟）
 		//battery_data.lastChargeTime[16];      			// 最后一次充电时间（时间格式）
 
 		// 电压电流参数
@@ -426,7 +426,7 @@ void battery_ack_handle(void)
                             break;
 
                         case 2:
-                            battery_data.currentCurrent = (battery_data.currentCurrentH<<8)|can_handle.RxData[0];		// 读取当前电流
+                            battery_data.currentCurrent = -((battery_data.currentCurrentH<<8)|can_handle.RxData[0])*10;		// 读取当前电流
                             battery_data.protect_state = (can_handle.RxData[3]<<8)|can_handle.RxData[4];				// 读电池保护状态
                             battery_data.battTempPoint = can_handle.RxData[5];			                                // 读取测温点数量
                             battery_data.batt_temp[0] = can_handle.RxData[6] - 40;		                                // 读取温度0

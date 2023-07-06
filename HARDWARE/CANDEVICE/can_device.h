@@ -150,7 +150,7 @@ typedef struct {
     uint16_t 	cellVoitageMax;					// 电池最高电芯电压；IOT单位mV，INT32，取值无限制
     uint16_t 	cellVoitageMin;					// 电池最低电芯电压；IOT单位mV，INT32，取值无限制
     uint8_t 	currentCurrentH;				// 电池当前电流高字节
-    int16_t 	currentCurrent;					// 电池当前电流；IOT单位mA，INT32，取值无限制；
+    int32_t   currentCurrent;					// 电池当前电流；IOT单位mA，INT32，取值无限制；
 
     // 容量和健康度参数
     uint8_t  	soc;							// 电池电量剩余百分比；IOT单位无，INT32，取值0-100；
