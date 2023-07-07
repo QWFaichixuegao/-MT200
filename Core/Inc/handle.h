@@ -235,7 +235,7 @@ typedef enum
 #define GEAR3_SPEED  			700 						// 自动3档速度
 #define TURN_VAR  				0.4   					    // 原地转速度比例
 #define ROL_VAR  				13 							// 10000÷720=13.88 峰值9360 电机调速峰值10000 单位0.01% 即拉满93.60%的速度(3000*93.60%)
-#define ROL_VAR2 				7								//导航用比例小720*7 峰值5040
+#define ROL_VAR2 				8								//导航用比例小720*7 峰值5040
 #define SBUS_MAX  				1713                        // 表示最大值
 #define SBUS_MIN  				273                         // 表示最小值
 #define SBUS_zhongzhi  			993                         // 表示中间值
