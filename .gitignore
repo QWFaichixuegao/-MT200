@@ -1,1 +1,4 @@
 /Drivers
+/MDK-ARM/CT200_F429
+/MDK-ARM/.vscode
+.gitignore
