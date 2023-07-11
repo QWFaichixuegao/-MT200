@@ -5,3 +5,6 @@ MDK-ARM/.vscode/settings.json
 MDK-ARM/.vscode/keil-assistant.log
 MDK-ARM/.vscode/c_cpp_properties.json
 /MDK-ARM/CT200_F429/tbin
+MDK-ARM/CT200_F429.uvguix.lbuprofen
+MDK-ARM/CT200_F429.uvprojx
+MDK-ARM/CT200_F429.uvoptx

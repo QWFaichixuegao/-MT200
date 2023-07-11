@@ -278,7 +278,7 @@ void batteryS48100ReadData(void)
         battery_data.circle 					= 0;      	// 循环次数
 		//battery_data.timestamp 				= 0;        // 已充电时间时间戳形式
 		//battery_data.chargeTimeRemain 		= 0;   		// 充电剩余时间（分钟）
-		battery_data.dischargeTimeRemain 	    = 0;   		// 放电剩余时间（分钟）
+		// battery_data.dischargeTimeRemain 	    = 0;   		// 放电剩余时间（分钟）
 		//battery_data.lastChargeTime[16];      			// 最后一次充电时间（时间格式）
 
 		// 电压电流参数
@@ -426,7 +426,7 @@ void battery_ack_handle(void)
                             break;
 
                         case 2:
-                            battery_data.currentCurrent = -((battery_data.currentCurrentH<<8)|can_handle.RxData[0])*10;		// 读取当前电流
+                            battery_data.currentCurrent = -((battery_data.currentCurrentH<<8)|can_handle.RxData[0])*10;		// 读取当前电流单位10ma因此×10
                             battery_data.protect_state = (can_handle.RxData[3]<<8)|can_handle.RxData[4];				// 读电池保护状态
                             battery_data.battTempPoint = can_handle.RxData[5];			                                // 读取测温点数量
                             battery_data.batt_temp[0] = can_handle.RxData[6] - 40;		                                // 读取温度0
