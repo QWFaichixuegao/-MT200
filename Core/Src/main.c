@@ -145,7 +145,7 @@ int main(void)
 	canDeviceVersionRead();
 
     // 看门狗初始化
-	MX_IWDG_Init();
+	// MX_IWDG_Init();
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in freertos.c) */

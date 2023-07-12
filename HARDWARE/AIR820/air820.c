@@ -7,19 +7,20 @@
 
 
 extern osSemaphoreId BinarySem01Handle;
-OTA_INFORM                  ota_inform;
-AIR_4g_FLAG 				air_4g_flag;       //4G模块标志位
-AIR_4g_CONNECT 				air_4g_connect;    //4G模块连接计数
-USARTX_HANDLE               usart3_handle_4g;
-DEVICE_INFORM 				device_inform;
-MQTT_PUB_INFORM  			mqtt_pub_inform;
-MQTT_OTA_INFORM 			mqtt_ota_inform;
-SING_WORK_EVENT			    sing_work_event;
-GPS_HANDLE 					gps_info;
-BLE_INFORM 					ble_inform;
-TIMER_HANDLE1 		        timer_info;
-DESIRED_INFORM             desired_inform;
-SBUS_PACK 					sbus_pack_data;
+OTA_INFORM          ota_inform;
+AIR_4g_FLAG         air_4g_flag;       //4G模块标志位
+AIR_4g_CONNECT      air_4g_connect;    //4G模块连接计数
+USARTX_HANDLE       usart3_handle_4g;
+DEVICE_INFORM       device_inform;
+MQTT_PUB_INFORM     mqtt_pub_inform;
+MQTT_OTA_INFORM     mqtt_ota_inform;
+SING_WORK_EVENT     sing_work_event;
+GPS_HANDLE          gps_info;
+BLE_INFORM          ble_inform;
+TIMER_HANDLE1       timer_info;
+DESIRED_INFORM      desired_inform;
+SBUS_PACK           sbus_pack_data;
+MPU_MSG_PACK        mpu_msg_pack ={0xff,0x55,0,0,0,0,0,0,0,0};
 
 
 // 字符串转时间戳函数
@@ -907,3 +908,54 @@ void usart1_sbus_tx(void)
     HAL_UART_Transmit_DMA(&huart1, (uint8_t*)sbus_pack_data.tx_buf, strlen(sbus_pack_data.tx_buf));
 }
 
+
+void mpu_msg_tx(void)
+{
+  mpu_msg_pack.soc            = 60;
+  mpu_msg_pack.speed          = can_read_data.Speed/10;
+  mpu_msg_pack.medi           = spraySensor_waterLevel/100;
+  mpu_msg_pack.flow_rate      = 50;
+  mpu_msg_pack.pressure       = spraySensor_waterPressure;
+  mpu_msg_pack.airflow        = mqtt_pub_inform.fanMachinery;
+  mpu_msg_pack.pump           = mqtt_pub_inform.motorWaterPump;
+  mpu_msg_pack.checksum       = 0;
+  calculateChecksum(&mpu_msg_pack);//求和校验mpu_msg_pack.checksum
+
+  // uint8_t sendbuf[32];
+
+  HAL_UART_Transmit_DMA(&huart3, (uint8_t*)&mpu_msg_pack, sizeof(mpu_msg_pack));
+
+}
+
+void calculateChecksum(MPU_MSG_PACK* packet) {
+
+    uint8_t* ptr = (uint8_t*)packet;
+    uint16_t sum = 0;
+
+    for (int i = 0; i < sizeof(MPU_MSG_PACK) - sizeof(uint8_t); i++) {
+        sum += ptr[i];
+    }
+    packet->checksum = (uint8_t)(sum & 0xFF);
+}
+
+
+
+
+
+  // uint8_t  *p;
+  // uint8_t  i;0
+  // p = (uint8_t*)&mpu_msg_pack;
+  // for(i=0;i<sizeof(MPU_MSG_PACK)-1;i++){
+  //   mpu_msg_pack.checksum += *(p+i);
+  // }
+  // uint32_t sum = 0;
+  // sum += mpu_msg_pack.header1;
+  // sum += mpu_msg_pack.header2;
+  // sum += mpu_msg_pack.soc;
+  // sum += mpu_msg_pack.speed;
+  // sum += mpu_msg_pack.medi;
+  // sum += mpu_msg_pack.flow_rate;
+  // sum += mpu_msg_pack.pressure;
+  // sum += mpu_msg_pack.airflow;
+  // sum += mpu_msg_pack.pump;
+  // mpu_msg_pack.checksum = (uint8_t)(sum & 0xFF);

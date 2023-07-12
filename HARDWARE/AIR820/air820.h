@@ -83,9 +83,28 @@ typedef enum
 typedef struct
 {
     char       tx_buf[2048];
-	
+
 } SBUS_PACK;
 extern SBUS_PACK sbus_pack_data;
+
+/*************************************************************mpu上位机交互******************************************************************/
+#pragma pack(push,1)
+typedef struct
+{
+    uint8_t   header1;
+    uint8_t   header2;
+    uint16_t  soc;
+    uint16_t  speed;
+    uint16_t  medi;
+    uint16_t  flow_rate;
+    uint16_t  pressure;
+    uint16_t  airflow;
+    uint16_t  pump;
+    uint8_t   checksum;
+} MPU_MSG_PACK;
+#pragma pack()
+extern MPU_MSG_PACK mpu_msg_pack;
+
 
 
 /*************************************************************蓝牙******************************************************************/
@@ -277,18 +296,18 @@ void air_4g_OTAREQUEST(void);
 void air_4g_OTASUB(uint8_t delay_way);
 void air_4g_http_otarequest(void);
 
-void usart1_sbus_tx(void);
-
 time_t StringToTimeStamp(uint8_t* timeStr);
 char *TimeStampToString(time_t* timeStamp);
 void get_real_time(uint8_t delay_way);
 void get_4G_msg(uint8_t delay_way);
 void gpsReset(uint8_t delay_way);
-
 void topic_sub(uint8_t delay_way);
 
+void usart1_sbus_tx(void);
 
+void mpu_msg_tx(void);
 
+void calculateChecksum(MPU_MSG_PACK* packet);
 // 未使用
 
 

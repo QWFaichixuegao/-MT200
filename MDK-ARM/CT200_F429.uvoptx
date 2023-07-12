@@ -320,6 +320,16 @@
           <WinNumber>1</WinNumber>
           <ItemText>softSwitch_switchBatteySOC</ItemText>
         </Ww>
+        <Ww>
+          <count>32</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>mpu_msg_pack,0x10</ItemText>
+        </Ww>
+        <Ww>
+          <count>33</count>
+          <WinNumber>1</WinNumber>
+          <ItemText>spraySensor_waterPressure</ItemText>
+        </Ww>
       </WatchWindow1>
       <WatchWindow2>
         <Ww>
@@ -336,6 +346,11 @@
           <count>2</count>
           <WinNumber>2</WinNumber>
           <ItemText>Remote,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>3</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>sbus_pack_data</ItemText>
         </Ww>
       </WatchWindow2>
       <MemoryWindow1>

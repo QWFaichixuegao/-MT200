@@ -198,203 +198,200 @@ void StartTask01(void const * argument)
         if(control_flag.sTimer_ms_1000 >= Count_1s)
         {
             control_flag.sTimer_ms_1000 = 0;
-            air_4g_connect.air820Count++;
-            if (gps_info.gpsCheckcount < 120)
-            {
-              gps_info.gpsCheckcount++;
-            }
+            usart1_sbus_tx();// 运行状态下数传发送
+            while (huart1.gState != HAL_UART_STATE_READY){}
+            memset(&sbus_pack_data,0,sizeof(sbus_pack_data));
+            mpu_msg_tx();
+
+            // air_4g_connect.air820Count++;
+            // if (gps_info.gpsCheckcount < 120)
+            // {
+            //   gps_info.gpsCheckcount++;
+            // }
             // 车辆运行数据上报,目前每次慢300ms
-            if(air_4g_flag.MQTT_flag == TRUE /* && control_flag.event_mpub_mutex == FALSE && gps_info.LBSRxFlag == FALSE*/)
-            {
-                if(control_flag.event_mpub_single_flag == TRUE)
-                {
-                  air_4g_MPUB_event(WORK_EVENT_MAIN);
-                  air_4g_MPUB_event(WORK_EVENT_TRACK);
-                  while (huart3.gState != HAL_UART_STATE_READY){}
-                  memset(&sing_work_event,0,sizeof(sing_work_event));//上报完后清空运行记录结构体数据
-                  control_flag.event_mpub_single_flag = FALSE;
-                }
-                else
-                {
-                    if(control_flag.Car_State == RUN)
-                    {
-                        // air_4g_MPUB(control_flag.Car_State);    // 运行状态下发送
-                        air_4g_MPUB(RUN);    // 运行状态下发送
-                    }
-                    else if(control_flag.Car_State == CLOSE && control_flag.sTimer_ms_10000 == Count_10s)	//运行状态跳回睡眠状态、待机状态下需等待运行记录上报事件完毕
-                    {
-                        control_flag.sTimer_ms_10000 = 0;
-                        // air_4g_MPUB(control_flag.Car_State);    // 睡眠状态下发送
-                        air_4g_MPUB(CLOSE);    // 睡眠状态下发送
-                    }
-                    else if(control_flag.Car_State == OPEN && control_flag.sTimer_ms_5000 == Count_5s)
-                    {
-                        control_flag.sTimer_ms_5000 = 0;
-                        // air_4g_MPUB(control_flag.Car_State);    // 待机状态下发送
-                        air_4g_MPUB(OPEN);    // 待机状态下发送
-                    }
-                    else if(control_flag.Car_State == FAULT && control_flag.sTimer_ms_5000 == Count_5s)
-                    {
-                        control_flag.sTimer_ms_5000 = 0;
-                        // air_4g_MPUB(control_flag.Car_State);    //异常状态下发送
-                        air_4g_MPUB(FAULT);    //异常状态下发送
-                    }
-                    else if(control_flag.Car_State == RECHARGE && control_flag.sTimer_ms_10000 == Count_10s)
-                    {
-                        control_flag.sTimer_ms_10000 = 0;
-                        // air_4g_MPUB(control_flag.Car_State);    // 充电状态下发送
-                        air_4g_MPUB(RECHARGE);    // 充电状态下发送
-                    }
-                    usart1_sbus_tx();// 运行状态下数传发送
-                    while (huart1.gState != HAL_UART_STATE_READY){}
-                    memset(&sbus_pack_data,0,sizeof(sbus_pack_data));
+            // if(air_4g_flag.MQTT_flag == TRUE /* && control_flag.event_mpub_mutex == FALSE && gps_info.LBSRxFlag == FALSE*/)
+            // {
+            //     if(control_flag.event_mpub_single_flag == TRUE)
+            //     {
+            //       air_4g_MPUB_event(WORK_EVENT_MAIN);
+            //       air_4g_MPUB_event(WORK_EVENT_TRACK);
+            //       while (huart3.gState != HAL_UART_STATE_READY){}
+            //       memset(&sing_work_event,0,sizeof(sing_work_event));//上报完后清空运行记录结构体数据
+            //       control_flag.event_mpub_single_flag = FALSE;
+            //     }
+            //     else
+            //     {
+            //         if(control_flag.Car_State == RUN)
+            //         {
+            //             // air_4g_MPUB(control_flag.Car_State);    // 运行状态下发送
+            //             air_4g_MPUB(RUN);    // 运行状态下发送
+            //         }
+            //         else if(control_flag.Car_State == CLOSE && control_flag.sTimer_ms_10000 == Count_10s)	//运行状态跳回睡眠状态、待机状态下需等待运行记录上报事件完毕
+            //         {
+            //             control_flag.sTimer_ms_10000 = 0;
+            //             // air_4g_MPUB(control_flag.Car_State);    // 睡眠状态下发送
+            //             air_4g_MPUB(CLOSE);    // 睡眠状态下发送
+            //         }
+            //         else if(control_flag.Car_State == OPEN && control_flag.sTimer_ms_5000 == Count_5s)
+            //         {
+            //             control_flag.sTimer_ms_5000 = 0;
+            //             // air_4g_MPUB(control_flag.Car_State);    // 待机状态下发送
+            //             air_4g_MPUB(OPEN);    // 待机状态下发送
+            //         }
+            //         else if(control_flag.Car_State == FAULT && control_flag.sTimer_ms_5000 == Count_5s)
+            //         {
+            //             control_flag.sTimer_ms_5000 = 0;
+            //             // air_4g_MPUB(control_flag.Car_State);    //异常状态下发送
+            //             air_4g_MPUB(FAULT);    //异常状态下发送
+            //         }
+            //         else if(control_flag.Car_State == RECHARGE && control_flag.sTimer_ms_10000 == Count_10s)
+            //         {
+            //             control_flag.sTimer_ms_10000 = 0;
+            //             // air_4g_MPUB(control_flag.Car_State);    // 充电状态下发送
+            //             air_4g_MPUB(RECHARGE);    // 充电状态下发送
+            //         }
+            //         usart1_sbus_tx();// 运行状态下数传发送
+            //         while (huart1.gState != HAL_UART_STATE_READY){}
+            //         memset(&sbus_pack_data,0,sizeof(sbus_pack_data));
 
-                    while (huart3.gState != HAL_UART_STATE_READY){}
-                    memset(mqtt_pub_inform.PubBuf,0,sizeof(mqtt_pub_inform.PubBuf));
+            //         while (huart3.gState != HAL_UART_STATE_READY){}
+            //         memset(mqtt_pub_inform.PubBuf,0,sizeof(mqtt_pub_inform.PubBuf));
+            //     }
+            // }
 
-                    //else if(control_flag.Car_State == RECHARGE && control_flag.sTimer_ms_60000 == Count_60s)
-                    //{
-                    //    control_flag.sTimer_ms_60000 = 0;
-                    //    air_4g_MPUB(control_flag.Car_State);    // 充电状态下发送
-                    //}
-                }
-                // vTaskDelay(10);
-            }
+    //         //复位后每秒发送一次获取实时时间指令直到时间校准成功
+    //         if(air_4g_flag.get_realtime_flag == FALSE)
+    //         {
+    //           get_real_time(1);
+    //         }
 
-            //复位后每秒发送一次获取实时时间指令直到时间校准成功
-            if(air_4g_flag.get_realtime_flag == FALSE)
-            {
-              get_real_time(1);
-            }
+    //         //每20s读取一次4G当前信息
+    //         if(air_4g_connect.air820Count == 10)
+    //         {
+    //           air_4g_connect.air820Count = 0;
+    //           get_4G_msg(1);// 获取4G当前信息(MQTT连接状态、4G信号质量)
+    //         }
 
-            //每20s读取一次4G当前信息
-            if(air_4g_connect.air820Count == 10)
-            {
-              air_4g_connect.air820Count = 0;
-              get_4G_msg(1);// 获取4G当前信息(MQTT连接状态、4G信号质量)
-            }
+    //         //运行状态下每120s检查一次GPS连接
+    //         if(gps_info.gpsCheckcount == 120)
+    //         {
+    //           if(control_flag.Car_State == RUN)
+    //           {
+    //             if(gps_info.gps_signal_flag != 0x31)
+    //             {
+    //               gpsReset(air_4g_flag.vTa_delay);
+    //               gps_info.gpsCheckcount = 0;
+    //               gps_info.gpsUrc =10;
+    //               gps_info.gpsUrcSet = 1;
+    //             }
+    //           }
+    //         }
+    //     }
 
-            //运行状态下每120s检查一次GPS连接
-            if(gps_info.gpsCheckcount == 120)
-            {
-              if(control_flag.Car_State == RUN)
-              {
-                if(gps_info.gps_signal_flag != 0x31)
-                {
-                  gpsReset(air_4g_flag.vTa_delay);
-                  gps_info.gpsCheckcount = 0;
-                  gps_info.gpsUrc =10;
-                  gps_info.gpsUrcSet = 1;
-                }
-              }
-            }
+    //     // 调整GPS上报频率
+    //     if(gps_info.gpsUrc != gps_info.gpsUrcSet)
+    //     {
+    //         char gpsBuf[20];
+    //         sprintf(gpsBuf, "AT+CGNSURC=%d\r", gps_info.gpsUrcSet);
+    //         air4g_send_cmd("ATE0\r", "OK", 50, air_4g_flag.vTa_delay);
+    //         air4g_send_cmd(gpsBuf, "OK", 100, air_4g_flag.vTa_delay);
+    //         gps_info.gpsUrc = gps_info.gpsUrcSet;
+    //     }
+
+    //     // 开启蓝牙
+    //     if(ble_inform.ble_switch_state != ble_inform.ble_switch)
+    //     {
+    //         if(ble_inform.ble_switch == TRUE)
+    //         {
+    //             ble_swit_on(1);
+    //         }
+    //         else if(ble_inform.ble_switch == FALSE)
+    //         {
+    //             ble_swit_off(1);
+    //         }
+    //         ble_inform.ble_switch_state = ble_inform.ble_switch;
+    //     }
+
+    //     // 如果在绑定模式下接收到了绑定请求，就关闭绑定模式，并通过蓝牙给手机发送三元组信息
+    //     if(control_flag.Car_State == OPEN && control_flag.Bound_flag == TRUE)
+    //     {
+    //         control_flag.Bound_flag 	= FALSE;
+
+    //         /*
+    //         发送三元组信息及其他传输
+    //         AT+BLECOMM=SENDDATA,fee2,21,7172735F7465737436246768333750317A51646F47
+    //         */
+    //         air4g_send_cmd(ble_inform.dev_send_cmd, "OK", 100, air_4g_flag.vTa_delay);
+    //     }
+
+    //     // 车辆和MQTT服务器断开连接
+		// if(air_4g_flag.MQTT_flag == FALSE)
+		// {
+
+    //         // 回显模式关闭
+    //         for(uint8_t i = 0; i < 5; i++)
+    //         {
+    //             vTaskDelay (1000);
+    //             if(!air4g_send_cmd("ATE0\r", "OK", 500, air_4g_flag.vTa_delay))
+    //                 break;
+    //         }
+    //         air4g_send_cmd("AT+MQTTSTATU\r", "+MQTTSTATU :1", 200, air_4g_flag.vTa_delay);
+    //         // 再次检查车辆和MQTT服务器连接是否正常，这里可以检查3次
+    //         if(air_4g_flag.MQTT_flag == TRUE)
+    //         {
+    //             air_4g_flag.MQTT_flag = TRUE;
+    //             air_4g_flag.SIM_flag = TRUE;
+    //         }
+    //         else
+    //         {
+    //             /******检查SIM卡连接是否正常*******/
+
+    //             // 如果车辆和接蜂窝网络连接正常，这里可以检查3次
+
+    //             for(uint8_t i = 0; i <= 3; i++)
+    //             {
+    //                 air_4g_closeURC(1);
+    //                 // 如果车辆和接蜂窝网络连接不正常
+    //                 if(i >= 3)
+    //                 {
+    //                     air_4g_flag.SIM_flag = FALSE;
+    //                     // 蜂窝网络连接不正常，就让4G模块重启
+    //                     air_4g_restar(air_4g_flag.vTa_delay);
+    //                     break;
+    //                 }
+    //                 if(air_4g_net_check(1) == SIM_OK)
+    //                 {
+    //                     air_4g_flag.SIM_flag = TRUE;
+    //                     if(air_4g_connect_server(0,1) == MQTT_CONNECT_OK)   // MQTT断连后自动关闭MQTT
+    //                     {
+    //                         // 如果车辆和MQTT服务器连接成功
+    //                         air_4g_flag.MQTT_flag = TRUE;
+    //                         air_4g_flag.SIM_flag = TRUE;
+    //                         break;
+    //                     }
+    //                 }
+    //                 vTaskDelay(1000);
+
+    //             }
+
+    //         }
+    //         // 检查车辆和MQTT服务器是否连接，首次上报初次上线需要上报的信息
+    //         if(air_4g_flag.MQTT_flag == TRUE)
+    //         {
+    //             air_4g_OTAMPUB(1);
+    //             air_4g_OTASUB(1);
+    //             topic_sub(1);
+    //             // 开启主动上报
+    //             air_4g_openURC(1);
+    //         }
+
         }
-
-        // 调整GPS上报频率
-        if(gps_info.gpsUrc != gps_info.gpsUrcSet)
+        // 车辆和MQTT服务器连接正常
+        else
         {
-            char gpsBuf[20];
-            sprintf(gpsBuf, "AT+CGNSURC=%d\r", gps_info.gpsUrcSet);
-            air4g_send_cmd("ATE0\r", "OK", 50, air_4g_flag.vTa_delay);
-            air4g_send_cmd(gpsBuf, "OK", 100, air_4g_flag.vTa_delay);
-            gps_info.gpsUrc = gps_info.gpsUrcSet;
+          vTaskDelay(10);
         }
-
-        // 开启蓝牙
-        if(ble_inform.ble_switch_state != ble_inform.ble_switch)
-        {
-            if(ble_inform.ble_switch == TRUE)
-            {
-                ble_swit_on(1);
-            }
-            else if(ble_inform.ble_switch == FALSE)
-            {
-                ble_swit_off(1);
-            }
-            ble_inform.ble_switch_state = ble_inform.ble_switch;
-        }
-
-        // 如果在绑定模式下接收到了绑定请求，就关闭绑定模式，并通过蓝牙给手机发送三元组信息
-        if(control_flag.Car_State == OPEN && control_flag.Bound_flag == TRUE)
-        {
-            control_flag.Bound_flag 	= FALSE;
-
-            /*
-            发送三元组信息及其他传输
-            AT+BLECOMM=SENDDATA,fee2,21,7172735F7465737436246768333750317A51646F47
-            */
-            air4g_send_cmd(ble_inform.dev_send_cmd, "OK", 100, air_4g_flag.vTa_delay);
-        }
-
-        // 车辆和MQTT服务器断开连接
-		if(air_4g_flag.MQTT_flag == FALSE)
-		{
-
-            // 回显模式关闭
-            for(uint8_t i = 0; i < 5; i++)
-            {
-                vTaskDelay (1000);
-                if(!air4g_send_cmd("ATE0\r", "OK", 500, air_4g_flag.vTa_delay))
-                    break;
-            }
-            air4g_send_cmd("AT+MQTTSTATU\r", "+MQTTSTATU :1", 200, air_4g_flag.vTa_delay);
-            // 再次检查车辆和MQTT服务器连接是否正常，这里可以检查3次
-            if(air_4g_flag.MQTT_flag == TRUE)
-            {
-                air_4g_flag.MQTT_flag = TRUE;
-                air_4g_flag.SIM_flag = TRUE;
-            }
-            else
-            {
-                /******检查SIM卡连接是否正常*******/
-
-                // 如果车辆和接蜂窝网络连接正常，这里可以检查3次
-
-                for(uint8_t i = 0; i <= 3; i++)
-                {
-                    air_4g_closeURC(1);
-                    // 如果车辆和接蜂窝网络连接不正常
-                    if(i >= 3)
-                    {
-                        air_4g_flag.SIM_flag = FALSE;
-                        // 蜂窝网络连接不正常，就让4G模块重启
-                        air_4g_restar(air_4g_flag.vTa_delay);
-                        break;
-                    }
-                    if(air_4g_net_check(1) == SIM_OK)
-                    {
-                        air_4g_flag.SIM_flag = TRUE;
-                        if(air_4g_connect_server(0,1) == MQTT_CONNECT_OK)   // MQTT断连后自动关闭MQTT
-                        {
-                            // 如果车辆和MQTT服务器连接成功
-                            air_4g_flag.MQTT_flag = TRUE;
-                            air_4g_flag.SIM_flag = TRUE;
-                            break;
-                        }
-                    }
-                    vTaskDelay(1000);
-
-                }
-
-            }
-            // 检查车辆和MQTT服务器是否连接，首次上报初次上线需要上报的信息
-            if(air_4g_flag.MQTT_flag == TRUE)
-            {
-                air_4g_OTAMPUB(1);
-                air_4g_OTASUB(1);
-                topic_sub(1);
-
-                // 开启主动上报
-                air_4g_openURC(1);
-            }
-		}
-
-		// 车辆和MQTT服务器连接正常
-		else
-		{
-			vTaskDelay(10);
-		}
-		osDelay(1);
+        osDelay(1);
   }
   /* USER CODE END StartTask01 */
 }
@@ -729,16 +726,16 @@ void StartTask04(void const * argument)
 
 
 
-       // 绝对延时下看门狗4S喂狗
-        if (control_flag.Iwdg_count == 4)
-        {
-            control_flag.Iwdg_count = 0;
-            HAL_IWDG_Refresh(&hiwdg);
-        }
-        else
-        {
-            control_flag.Iwdg_count++;
-        }
+      //  // 绝对延时下看门狗4S喂狗
+      //   if (control_flag.Iwdg_count == 4)
+      //   {
+      //       control_flag.Iwdg_count = 0;
+      //       HAL_IWDG_Refresh(&hiwdg);
+      //   }
+      //   else
+      //   {
+      //       control_flag.Iwdg_count++;
+      //   }
 
 
         osDelayUntil(&Prewaketime,1000);
