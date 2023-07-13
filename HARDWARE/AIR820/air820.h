@@ -99,6 +99,7 @@ typedef struct
     uint16_t  pressure;
     uint16_t  airflow;
     uint16_t  pump;
+    uint8_t   control_mode;
     uint8_t   checksum;
 } MPU_MSG_PACK;
 #pragma pack()

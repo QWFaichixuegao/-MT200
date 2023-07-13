@@ -75,6 +75,7 @@ extern TIM_HandleTypeDef htim1;
 
 /* USER CODE BEGIN EV */
 extern osSemaphoreId BinarySem01Handle;
+uint8_t checksum_sum;
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -318,6 +319,7 @@ void USART1_IRQHandler(void)
 /**
   * @brief This function handles USART3 global interrupt.
   */
+
 void USART3_IRQHandler(void)
 {
   /* USER CODE BEGIN USART3_IRQn 0 */
@@ -329,29 +331,37 @@ void USART3_IRQHandler(void)
 			// HAL_UART_DMAStop(&huart3);
 			HAL_UART_AbortReceive(&huart3);//只关闭串口接收
 
-			usart3_handle_4g.rx_count  = __HAL_DMA_GET_COUNTER(&hdma_usart3_rx);
-			usart3_handle_4g.rx_len = RX_SIZE - usart3_handle_4g.rx_count;
+// 			usart3_handle_4g.rx_count  = __HAL_DMA_GET_COUNTER(&hdma_usart3_rx);
+// 			usart3_handle_4g.rx_len = RX_SIZE - usart3_handle_4g.rx_count;
 
-            // 判断缓冲区接收到的是需要监听的信息，则触发解析
-            air4gRecCheck();
+//             // 判断缓冲区接收到的是需要监听的信息，则触发解析
+//             air4gRecCheck();
 
-            // 将缓冲区数据复制到待处理区
-			//memcpy(usart3_handle_4g.save_buf,usart3_handle_4g.rx_buf,usart3_handle_4g.rx_len);
+//             // 将缓冲区数据复制到待处理区
+// 			//memcpy(usart3_handle_4g.save_buf,usart3_handle_4g.rx_buf,usart3_handle_4g.rx_len);
 
-            // 清空缓冲区
-			memset(usart3_handle_4g.rx_buf,0,RX_SIZE);
+//             // 清空缓冲区
+// 			memset(usart3_handle_4g.rx_buf,0,RX_SIZE);
 
 
-//			if(control_flag.Usart3_handle_flag == TRUE)
-//            {
-//				if(usart3_handle_4g.rx_len < LONG_MESG)
-//                {
-//					osSemaphoreRelease(BinarySem01Handle);
-//				}
-//			}
+// //			if(control_flag.Usart3_handle_flag == TRUE)
+// //            {
+// //				if(usart3_handle_4g.rx_len < LONG_MESG)
+// //                {
+// //					osSemaphoreRelease(BinarySem01Handle);
+// //				}
+// //			}
 
-            // 开启串口DMA接收
-			HAL_UART_Receive_DMA(&huart3,(uint8_t *)usart3_handle_4g.rx_buf,RX_SIZE);
+//             // 开启串口DMA接收
+// 			HAL_UART_Receive_DMA(&huart3,(uint8_t *)usart3_handle_4g.rx_buf,RX_SIZE);
+
+      uint8_t *data_ptr = (uint8_t*)&mpu_rec_pack;
+      for (uint32_t i = 0; i < sizeof(MPU_REC_PACK) - 1; i++)
+      {
+          checksum_sum += data_ptr[i];
+      }
+
+      HAL_UART_Receive_DMA(&huart3, (uint8_t*)&mpu_rec_pack, sizeof(MPU_REC_PACK));
     }
 
   /* USER CODE END USART3_IRQn 0 */
