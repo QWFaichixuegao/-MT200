@@ -20,7 +20,8 @@ BLE_INFORM          ble_inform;
 TIMER_HANDLE1       timer_info;
 DESIRED_INFORM      desired_inform;
 SBUS_PACK           sbus_pack_data;
-MPU_MSG_PACK        mpu_msg_pack ={0xff,0x55,0,0,0,0,0,0,0,0};
+MPU_MSG_PACK        mpu_msg_pack ={0xff,0x55,0,0,0,0,0,0,0,0};//发送MPU消息数据包
+MPU_REC_PACK        mpu_rec_pack ={0,0,0,0,0,0,0,0};    //接收MPU消息数据包
 
 
 // 字符串转时间戳函数
@@ -333,6 +334,11 @@ void ble_swit_off(bool delay_way)
 // 检查4G模块发送的信息是否为自动解析的数据
 void air4gRecCheck(void)
 {
+//    if(usart3_handle_4g.rx_buf[0]==0xff&&usart3_handle_4g.rx_buf[1]==0xff)
+//    {
+//      memcpy(&mpu_rec_pack,usart3_handle_4g.rx_buf,usart3_handle_4g.rx_len);
+//    }
+		memcpy(&mpu_rec_pack,usart3_handle_4g.rx_buf,usart3_handle_4g.rx_len);
     if((strstr((char*)usart3_handle_4g.rx_buf,"+UGNSINF: 1")!=NULL)||
 		(strstr(usart3_handle_4g.rx_buf,"+CSQ:")!=NULL)||
 		(strstr(usart3_handle_4g.rx_buf,"+BLEIND=DATA")!=NULL)||
@@ -349,6 +355,7 @@ void air4gRecCheck(void)
             osSemaphoreRelease(BinarySem01Handle);
         //}
     }
+
     else
     {
 		memcpy(usart3_handle_4g.save_buf,usart3_handle_4g.rx_buf,usart3_handle_4g.rx_len);
@@ -922,9 +929,7 @@ void mpu_msg_tx(void)
   calculateChecksum(&mpu_msg_pack);//求和校验mpu_msg_pack.checksum
 
   // uint8_t sendbuf[32];
-
   HAL_UART_Transmit_DMA(&huart3, (uint8_t*)&mpu_msg_pack, sizeof(mpu_msg_pack));
-
 }
 
 void calculateChecksum(MPU_MSG_PACK* packet) {

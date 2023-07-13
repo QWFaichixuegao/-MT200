@@ -83,7 +83,6 @@ typedef enum
 typedef struct
 {
     char       tx_buf[2048];
-
 } SBUS_PACK;
 extern SBUS_PACK sbus_pack_data;
 
@@ -104,6 +103,21 @@ typedef struct
 } MPU_MSG_PACK;
 #pragma pack()
 extern MPU_MSG_PACK mpu_msg_pack;
+
+#pragma pack(push,1)
+typedef struct
+{
+    uint8_t   header1;
+    uint8_t   header2;
+    int16_t   linear_speed;//-1500~1500 0.001m/s
+    int16_t   angular_speed;//正为左 负为右
+    uint8_t   airflow;
+    uint8_t   pump;
+    uint8_t   light;
+    uint8_t   checksum;
+} MPU_REC_PACK;
+#pragma pack()
+extern MPU_REC_PACK mpu_rec_pack;
 
 
 
@@ -255,7 +269,7 @@ typedef struct
 	uint8_t		get_version_flag;		     // 获取版本号是否成功
 	uint8_t		get_fireware_flag;			 // 获取新固件是否成功
 	char        PubBuf[512];
-	char 	    ota_http_urlATcmd[512];      // 组合AT指令请求的http url
+	char 	      ota_http_urlATcmd[512];      // 组合AT指令请求的http url
 	char        version_theme_str[64];
 	char        request_theme_str[64];
 	char        msubOTA_theme_str[64];
