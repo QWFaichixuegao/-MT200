@@ -110,8 +110,8 @@ typedef struct
 {
     uint8_t   header1;
     uint8_t   header2;
-    int16_t   linear_speed;//-1500~1500 0.001m/s
-    int16_t   angular_speed;//正为左 负为右
+    int16_t   linear_speed;//-1500~1500 0.001m/s 816
+    int16_t   angular_speed;//正为左 负为右max1000
     uint8_t   airflow;
     uint8_t   pump;
     uint8_t   light;
