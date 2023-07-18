@@ -199,6 +199,8 @@ void batteryReadData(void)
 // 电池S48100电池数据拷贝
 void batteryS48100PdoDataCopy(void)
 {
+    int32_t absCurrent;
+
     // 充电相关参数
     battery_data.charge_state 				= s48100Battery_chargeDischargeControl;     //电量包充放电状态
 
@@ -216,7 +218,7 @@ void batteryS48100PdoDataCopy(void)
 
     // 电压电流参数
     battery_data.voitageCurrent 			= s48100Battery_currentVoltage * 10;		// 电池当前电压
-    battery_data.currentCurrent 			= s48100Battery_currentCurrent;	// 电池当前电流
+    battery_data.currentCurrent 			= s48100Battery_currentCurrent;	// 电池当前电流mA 输出为负输入为正
 
     // 电池状态
     battery_data.protect_state 				= s48100Battery_protectState;				// 保护状态
@@ -224,6 +226,13 @@ void batteryS48100PdoDataCopy(void)
     battery_data.faultState					= s48100Battery_batteryFaultState;			// 故障状态
     battery_data.bmsState					= s48100Battery_BMSStatus;					// BMS状态
 
+    absCurrent = battery_data.currentCurrent;
+    if(absCurrent>-1)
+    {
+      absCurrent=-1;
+    }
+    absCurrent=-absCurrent;
+    battery_data.dischargeTimeRemain=60*battery_data.capRemain/absCurrent;
 }
 
 // 电池S48100Sdo读取固定参数
