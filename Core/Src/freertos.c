@@ -198,9 +198,58 @@ void StartTask01(void const * argument)
         if(control_flag.sTimer_ms_1000 >= Count_1s)
         {
             control_flag.sTimer_ms_1000 = 0;
-            usart1_sbus_tx();// 运行状态下数传发送
-            while (huart1.gState != HAL_UART_STATE_READY){}
-            memset(&sbus_pack_data,0,sizeof(sbus_pack_data));
+            if (gps_info.gpsCheckcount < 120)
+            {
+              gps_info.gpsCheckcount++;
+            }
+            //运行状态下每120s检查一次GPS连接
+            if(gps_info.gpsCheckcount == 120)
+            {
+              if(control_flag.Car_State == RUN)
+              {
+                if(gps_info.gps_signal_flag != 0x31)
+                {
+                  gpsReset(air_4g_flag.vTa_delay);
+                  gps_info.gpsCheckcount = 0;
+                  gps_info.gpsUrc =10;
+                  gps_info.gpsUrcSet = 1;
+                }
+              }
+            }
+
+            if(control_flag.Car_State == RUN)
+            {
+                // air_4g_MPUB(control_flag.Car_State);    // 运行状态下发送
+                air_4g_MPUB(RUN);    // 运行状态下发送
+            }
+            else if(control_flag.Car_State == CLOSE && control_flag.sTimer_ms_10000 == Count_10s)	//运行状态跳回睡眠状态、待机状态下需等待运行记录上报事件完毕
+            {
+                control_flag.sTimer_ms_10000 = 0;
+                // air_4g_MPUB(control_flag.Car_State);    // 睡眠状态下发送
+                air_4g_MPUB(CLOSE);    // 睡眠状态下发送
+            }
+            else if(control_flag.Car_State == OPEN && control_flag.sTimer_ms_5000 == Count_5s)
+            {
+                control_flag.sTimer_ms_5000 = 0;
+                // air_4g_MPUB(control_flag.Car_State);    // 待机状态下发送
+                air_4g_MPUB(OPEN);    // 待机状态下发送
+            }
+            else if(control_flag.Car_State == FAULT && control_flag.sTimer_ms_5000 == Count_5s)
+            {
+                control_flag.sTimer_ms_5000 = 0;
+                // air_4g_MPUB(control_flag.Car_State);    //异常状态下发送
+                air_4g_MPUB(FAULT);    //异常状态下发送
+            }
+            else if(control_flag.Car_State == RECHARGE && control_flag.sTimer_ms_10000 == Count_10s)
+            {
+                control_flag.sTimer_ms_10000 = 0;
+                // air_4g_MPUB(control_flag.Car_State);    // 充电状态下发送
+                air_4g_MPUB(RECHARGE);    // 充电状态下发送
+            }
+
+						usart1_sbus_tx();// 运行状态下数传发送
+						while (huart1.gState != HAL_UART_STATE_READY){}
+						memset(&sbus_pack_data,0,sizeof(sbus_pack_data));
             mpu_msg_tx();
 
             // air_4g_connect.air820Count++;
