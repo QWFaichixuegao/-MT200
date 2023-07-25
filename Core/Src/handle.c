@@ -434,7 +434,7 @@ void subus_read(void)
 		}
 
     // 蓝牙绑定标志位
-    if(Remote[SBUS_E] <= SBUS_lw_limit)
+    if(Remote[SBUS_E] >= SBUS_up_limit)
     {
         // 关闭配对响应
         control_flag.Match_flag     = FALSE;
@@ -452,7 +452,7 @@ void subus_read(void)
         control_flag.Sbus_lock_flag = FALSE;
 
     }
-    else if(Remote[SBUS_E] >= SBUS_up_limit)
+    else if(Remote[SBUS_E] <= SBUS_lw_limit)
     {
         // 关闭配对响应
         control_flag.Match_flag = FALSE;

@@ -11,6 +11,7 @@ OTA_INFORM          ota_inform;
 AIR_4g_FLAG         air_4g_flag;       //4G模块标志位
 AIR_4g_CONNECT      air_4g_connect;    //4G模块连接计数
 USARTX_HANDLE       usart3_handle_4g;
+USARTX_HANDLE       usart1_handle_sbus;
 DEVICE_INFORM       device_inform;
 MQTT_PUB_INFORM     mqtt_pub_inform;
 MQTT_OTA_INFORM     mqtt_ota_inform;
@@ -881,7 +882,7 @@ void air_4g_MPUB_event(uint8_t eventid)
 void usart1_sbus_tx(void)
 {
                                                     //{前的\"和}后的\"方便Android端处理这里去调
-		sprintf(sbus_pack_data.tx_buf,"AT+MPUB=\"%s\",0,0,{\\22ID\\22:%d,\\22params\\22:{\\22senser:waterPressureSensor\\22:%d,\\22senser:flowSensor\\22:%d,\\22senser:liquidLevelSensor\\22:%d,\\22motorWaterPump\\22:%d,\\22fanMachinery\\22:%d,\\22battery:capacitySoc\\22:%d,\\22battery:realTimeCurrent\\22:%d,\\22battery:dischargeTimeRemain\\22:%d,\\22basic:longitude\\22:\\22%s\\22,\\22basic:latitude\\22:\\22%s\\22,\\22basic:vehicleStatus\\22:%d,\\22basic:vehicleSpeed\\22:%d},\\22method\\22:\\22thing.event.property.post\\22}\r"
+		sprintf(sbus_pack_data.tx_buf,"AT+MPUB=\"%s\",0,0,{\\22ID\\22:%d,\\22params\\22:{\\22senser:waterPressureSensor\\22:%d,\\22senser:flowSensor\\22:%d,\\22senser:liquidLevelSensor\\22:%d,\\22motorWaterPump\\22:%d,\\22fanMachinery\\22:%d,\\22basic:vehicleStatus\\22:%d},\\22method\\22:\\22thing.event.property.post\\22}\r"
 										,mqtt_pub_inform.theme_str
 										,200
 										// 传感器模块
@@ -894,17 +895,17 @@ void usart1_sbus_tx(void)
 										,mqtt_pub_inform.fanMachinery               // 风机
 
 										// 电池模块
-										,battery_data.soc                            // 电池SOC
-                    ,battery_data.currentCurrent                 // 实时电流 充电为＋ 放电为-
-                    ,battery_data.dischargeTimeRemain            // 防电剩余时间
+										// ,battery_data.soc                            // 电池SOC
+                    // ,battery_data.currentCurrent                 // 实时电流 充电为＋ 放电为-
+                    // ,battery_data.dischargeTimeRemain            // 防电剩余时间
 
 										// 主电机驱动器
 
 										// 主控模块
-										,gps_info.Lon_nowstr                        // 经度
-										,gps_info.Lat_nowstr                        // 纬度
+										// ,gps_info.Lon_nowstr                        // 经度
+										// ,gps_info.Lat_nowstr                        // 纬度
 										,mqtt_pub_inform.vehicleStatus              // 车辆状态
-										,mqtt_pub_inform.vehicleSpeed				// 车速
+										// ,mqtt_pub_inform.vehicleSpeed				// 车速
 						);
     vTaskDelay(10);
     HAL_UART_Transmit_DMA(&huart1, (uint8_t*)sbus_pack_data.tx_buf, strlen(sbus_pack_data.tx_buf));

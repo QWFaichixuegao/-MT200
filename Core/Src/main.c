@@ -125,8 +125,11 @@ int main(void)
 	// HAL_UART_Receive_DMA(&huart3,(uint8_t *)usart3_handle_4g.rx_buf,RX_SIZE);
     // __HAL_UART_ENABLE_IT(&huart3, UART_IT_IDLE);
 
-    HAL_UART_Receive_DMA(&huart3, (uint8_t*)&mpu_rec_pack, sizeof(MPU_REC_PACK));
-    __HAL_UART_ENABLE_IT(&huart3, UART_IT_IDLE);
+  HAL_UART_Receive_DMA(&huart3, (uint8_t*)&mpu_rec_pack, sizeof(MPU_REC_PACK));
+  __HAL_UART_ENABLE_IT(&huart3, UART_IT_IDLE);
+
+	HAL_UART_Receive_DMA(&huart1,(uint8_t *)usart1_handle_sbus.rx_buf,RX_SIZE);
+  __HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
 
     // CAN¬À≤®≈‰÷√
 	can_filter_config();

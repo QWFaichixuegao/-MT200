@@ -19,7 +19,7 @@
 
 
 
-// 4G模块UART通讯基础定义
+
 #define RX_SIZE     1024
 #define TX_SIZE  	128
 #define SAVE_SIZE   1024
@@ -34,7 +34,12 @@ typedef struct
     uint16_t    rx_len;
     uint16_t    tx_len;
 }USARTX_HANDLE;
+
+// 4G模块UART通讯基础定义
 extern USARTX_HANDLE usart3_handle_4g;
+
+// 接收机数传UART通讯基础定义
+extern USARTX_HANDLE usart1_handle_sbus;
 
 
 /*************************************************************状态信息上报******************************************************************/

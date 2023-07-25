@@ -308,7 +308,20 @@ void I2C1_ER_IRQHandler(void)
 void USART1_IRQHandler(void)
 {
   /* USER CODE BEGIN USART1_IRQn 0 */
+    if((__HAL_UART_GET_FLAG(&huart1,UART_FLAG_IDLE) != RESET))
+    {
+			__HAL_UART_CLEAR_IDLEFLAG(&huart1);
+			HAL_UART_AbortReceive(&huart1);//只关闭串口接收
+			usart1_handle_sbus.rx_count  = __HAL_DMA_GET_COUNTER(&hdma_usart3_rx);
+			usart1_handle_sbus.rx_len = RX_SIZE - usart1_handle_sbus.rx_count;
 
+      // 将缓冲区数据复制到待处理区
+			memcpy(usart1_handle_sbus.save_buf,usart1_handle_sbus.rx_buf,usart1_handle_sbus.rx_len);
+      // 清空缓冲区
+			memset(usart1_handle_sbus.rx_buf,0,RX_SIZE);
+      // 开启串口DMA接收
+      HAL_UART_Receive_DMA(&huart1,(uint8_t *)usart1_handle_sbus.rx_buf,RX_SIZE);
+    }
   /* USER CODE END USART1_IRQn 0 */
   HAL_UART_IRQHandler(&huart1);
   /* USER CODE BEGIN USART1_IRQn 1 */
