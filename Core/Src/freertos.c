@@ -247,7 +247,7 @@ void StartTask01(void const * argument)
                 air_4g_MPUB(RECHARGE);    // 充电状态下发送
             }
 
-						usart1_sbus_tx();// 运行状态下数传发送
+						sbus_tx(&sbus_pack_data, PROPERTY_PUB_ID);// 运行状态下数传发送
 						while (huart1.gState != HAL_UART_STATE_READY){}
 						memset(&sbus_pack_data,0,sizeof(sbus_pack_data));
             mpu_msg_tx();

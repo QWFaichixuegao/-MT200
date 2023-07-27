@@ -83,49 +83,6 @@ typedef enum
     Count_60s  	=600,
 } TIME_COUNT_MS;
 
-/*************************************************************状态信息上报(数传)******************************************************************/
-// 车辆显示到APP上的实时状态上报
-typedef struct
-{
-    char       tx_buf[2048];
-} SBUS_PACK;
-extern SBUS_PACK sbus_pack_data;
-
-/*************************************************************mpu上位机交互******************************************************************/
-#pragma pack(push,1)
-typedef struct
-{
-    uint8_t   header1;
-    uint8_t   header2;
-    uint16_t  soc;
-    uint16_t  speed;
-    uint16_t  medi;
-    uint16_t  flow_rate;
-    uint16_t  pressure;
-    uint16_t  airflow;
-    uint16_t  pump;
-    uint8_t   control_mode;
-    uint8_t   checksum;
-} MPU_MSG_PACK;
-#pragma pack()
-extern MPU_MSG_PACK mpu_msg_pack;
-
-#pragma pack(push,1)
-typedef struct
-{
-    uint8_t   header1;
-    uint8_t   header2;
-    int16_t   linear_speed;//-1500~1500 0.001m/s 816
-    int16_t   angular_speed;//正为左 负为右max1000
-    uint8_t   airflow;
-    uint8_t   pump;
-    uint8_t   light;
-    uint8_t   checksum;
-} MPU_REC_PACK;
-#pragma pack()
-extern MPU_REC_PACK mpu_rec_pack;
-
-
 
 /*************************************************************蓝牙******************************************************************/
 
@@ -285,10 +242,143 @@ extern OTA_INFORM ota_inform;
 // 期望值消息
 typedef struct
 {
-	char       PubBuf[256];
+    char       PubBuf[256];
     char       desired_reply_theme_str[80];
 } DESIRED_INFORM;
 extern DESIRED_INFORM desired_inform;
+
+
+
+typedef enum
+{
+    heartbeat = 0,            /**MPU	 ->	  MCU         **/
+    path_parsing_progress,    /**MPU	 ->	  MCU  ->  APP**/
+    property_pub,             /**MCU	 ->	  APP         **/
+    control,                  /**MPU	 ->	  MCU         **/
+    command,                  /**APP	 ->	  MCU、MPU    **/
+    path                      /**APP	 ->	  MCU  ->  MPU**/
+}MQ_DATATYPE;
+
+
+#define     HEARTBEAT_ID            0/**MPU	 ->	  MCU         **/
+#define     PATH_PARSE_PROGRESS_ID  1/**MPU	 ->	  MCU  ->  APP**/
+#define     PROPERTY_PUB_ID         2/**MCU	 ->	  APP         **/
+#define     CONTROL_ID              3/**MPU	 ->	  MCU         **/
+#define     COMMAND_ID              4/**APP	 ->	  MCU、MPU    **/
+#define     PATH_ID                 5/**APP	 ->	  MCU  ->  MPU**/
+typedef enum
+{
+    status_Idle = 0,
+    status_WaitingForOrder,
+    status_ActingPath,
+    status_PausePath,
+    status_FinishPath,
+    status_ReturnToStart,
+    status_NeedRefill,
+    status_WaitingForRefillOrder,
+    status_ActingRefillPath,
+    status_PauseRefillPath,
+    status_InRefillPoint,
+    status_ReturnToInt,
+    status_PauseReturnToIntPath,
+    status_ErrorState
+}MQ_DEVICESTATUS;
+
+typedef enum 				//导航控制用
+{
+    command_launch = 0,			//启动命令
+    command_stop,				//结束命令
+    command_pause,  			//暂停命令
+    command_continue,			//恢复命令
+    command_returnToStart,		//返航命令
+    command_finish,				//完成命令
+    command_sprayon,			//启动喷洒命令
+    command_sprayoff,			//结束喷洒命令
+}MQ_COMMAND_ID;
+
+/*************************************************************MCU&APP数传交互******************************************************************/
+#pragma pack(push,1)
+typedef struct
+{
+    uint8_t           header1;
+    uint8_t           header2;
+    uint8_t           datalen;
+    uint8_t           msg_id;
+    uint8_t           *payload;//需填充的消息体
+    uint8_t           check_sum;
+} SBUS_PACK;
+extern SBUS_PACK sbus_pack_data;
+
+
+//APP上报消息体 使用紧密相接的方式然后再回复结构体对其
+typedef struct
+{
+    int64_t  latitude;  //x1000000
+    int64_t  longtitude; //x1000000
+    uint16_t max_linear;         //x10 最大线速度
+    uint16_t current_path_id;
+    uint16_t current_map_id;
+    uint16_t paused_point_id;
+    int16_t  heading;
+    uint8_t  use_refill;
+    uint8_t  use_wind;
+    uint8_t  use_4g_rtk;
+    uint8_t  gps_status;
+    uint8_t  num_satellites;
+    MQ_DEVICESTATUS navigate_status;
+    uint8_t  soc;							//电量SOC
+    uint8_t motorWaterPump;					// 水泵功率
+    uint8_t fanMachinery;					// 风机开度35
+    uint16_t vehicleStatus;					// 车辆状态
+    uint16_t vehicleSpeed;					// 车速
+    uint16_t spraySensor_waterPressure;		// 水压 每KPa
+    int16_t  spraySensor_waterFlow;			// 流量 每1ml
+    uint16_t spraySensor_waterLevel;		// 水位 每10ml
+    int32_t currentCurrent;					// 实时电流 充电为＋ 放电为-
+    uint16_t dischargeTimeRemain;			// 放电剩余时间
+}MQ_PROPERTY_PUB;
+#pragma pack()
+typedef struct
+{
+    uint8_t pointset_num;				//点集序列总数
+    uint8_t pointsetparse_index;				//当前已经解析的点集序列数
+}MQ_PathParsing_progress;
+
+
+/*************************************************************mpu上位机交互******************************************************************/
+#pragma pack(push,1)
+typedef struct
+{
+    uint8_t   header1;
+    uint8_t   header2;
+    uint16_t  soc;
+    uint16_t  speed;
+    uint16_t  medi;
+    uint16_t  flow_rate;
+    uint16_t  pressure;
+    uint16_t  airflow;
+    uint16_t  pump;
+    uint8_t   control_mode;
+    uint8_t   checksum;
+} MPU_MSG_PACK;
+#pragma pack()
+extern MPU_MSG_PACK mpu_msg_pack;
+
+#pragma pack(push,1)
+typedef struct
+{
+    uint8_t   header1;
+    uint8_t   header2;
+    int16_t   linear_speed;//-1500~1500 0.001m/s 816
+    int16_t   angular_speed;//正为左 负为右max1000
+    uint8_t   airflow;
+    uint8_t   pump;
+    uint8_t   light;
+    uint8_t   checksum;
+} MPU_REC_PACK;
+#pragma pack()
+extern MPU_REC_PACK mpu_rec_pack;
+
 
 
 /*************************************************************函数声明*************************************************************/
@@ -323,11 +413,13 @@ void get_4G_msg(uint8_t delay_way);
 void gpsReset(uint8_t delay_way);
 void topic_sub(uint8_t delay_way);
 
-void usart1_sbus_tx(void);
+
+void sbus_tx(SBUS_PACK* sbus_pack, uint8_t msgid);
 
 void mpu_msg_tx(void);
 
 void calculateChecksum(MPU_MSG_PACK* packet);
+uint8_t checksum8(void *data, int size);
 // 未使用
 
 

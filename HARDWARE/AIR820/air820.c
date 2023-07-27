@@ -879,65 +879,114 @@ void air_4g_MPUB_event(uint8_t eventid)
 		HAL_UART_Transmit_DMA(&huart3, (uint8_t*)mqtt_pub_inform.Pub_work_event_Buf, strlen(mqtt_pub_inform.Pub_work_event_Buf));
 }
 
-void usart1_sbus_tx(void)
+
+/*-------------------------------------------------------------导航-------------------------------------------------------------------*/
+
+
+void sbus_tx(SBUS_PACK* sbus_pack, uint8_t msgid)
 {
-                                                    //{前的\"和}后的\"方便Android端处理这里去调
-		sprintf(sbus_pack_data.tx_buf,"AT+MPUB=\"%s\",0,0,{\\22ID\\22:%d,\\22params\\22:{\\22senser:waterPressureSensor\\22:%d,\\22senser:flowSensor\\22:%d,\\22senser:liquidLevelSensor\\22:%d,\\22motorWaterPump\\22:%d,\\22fanMachinery\\22:%d,\\22basic:vehicleStatus\\22:%d},\\22method\\22:\\22thing.event.property.post\\22}\r"
-										,mqtt_pub_inform.theme_str
-										,200
-										// 传感器模块
-										,spraySensor_waterPressure                  // 水压 每KPa
-										,spraySensor_waterFlow/1000                 // 流量 每1ml
-										,spraySensor_waterLevel/100                 // 水位 每10ml
 
-										// 默认模块
-										,mqtt_pub_inform.motorWaterPump             // 水泵功率
-										,mqtt_pub_inform.fanMachinery               // 风机
+    sbus_pack->msg_id = msgid;
 
-										// 电池模块
-										// ,battery_data.soc                            // 电池SOC
-                    // ,battery_data.currentCurrent                 // 实时电流 充电为＋ 放电为-
-                    // ,battery_data.dischargeTimeRemain            // 防电剩余时间
+    // switch(msgid)
+    // {
+    //     case property_pub:
+    //     {
+            MQ_PROPERTY_PUB property_pub_pack;
+            property_pub_pack.latitude        = 0;
+            property_pub_pack.longtitude      = 0;
+            property_pub_pack.max_linear      = 1200;
+            property_pub_pack.current_path_id      = 0;
+            property_pub_pack.current_map_id      = 0;
+            property_pub_pack.paused_point_id      = 0;
+            property_pub_pack.heading      = 0;
+            property_pub_pack.use_refill      = 0;
+            property_pub_pack.use_wind      = 0;
+            property_pub_pack.use_4g_rtk      = 0;
+            property_pub_pack.gps_status      = 0;
+            property_pub_pack.num_satellites      = 0;
+            property_pub_pack.navigate_status      = status_Idle;
+            property_pub_pack.soc      = 0;
+            property_pub_pack.motorWaterPump      = 0;
+            property_pub_pack.fanMachinery      = 0;
+            property_pub_pack.vehicleStatus      = 0;
+            property_pub_pack.vehicleSpeed      = 0;
+            property_pub_pack.spraySensor_waterPressure      = 0;
+            property_pub_pack.spraySensor_waterFlow      = 0;
+            property_pub_pack.spraySensor_waterLevel      = 0;
+            property_pub_pack.currentCurrent      = 0;
+            property_pub_pack.dischargeTimeRemain      = 120;
+						sbus_pack->header1    = 0xff;
+						sbus_pack->header2    = 0x55;
+            sbus_pack->payload    = (uint8_t*)&property_pub_pack;
+            sbus_pack->datalen    = sizeof(property_pub_pack);
 
-										// 主电机驱动器
 
-										// 主控模块
-										// ,gps_info.Lon_nowstr                        // 经度
-										// ,gps_info.Lat_nowstr                        // 纬度
-										,mqtt_pub_inform.vehicleStatus              // 车辆状态
-										// ,mqtt_pub_inform.vehicleSpeed				// 车速
-						);
-    vTaskDelay(10);
-    HAL_UART_Transmit_DMA(&huart1, (uint8_t*)sbus_pack_data.tx_buf, strlen(sbus_pack_data.tx_buf));
+
+            sbus_pack->check_sum  = checksum8(&property_pub_pack, sizeof(property_pub_pack));
+            sbus_pack->check_sum  = (uint8_t)(sbus_pack->check_sum+sbus_pack->header1+sbus_pack->header2+sbus_pack->msg_id+sbus_pack->datalen);
+        // }
+
+        // break;
+
+        // case path_parsing_progress:
+        //     break;
+
+        // case DEFAUT_EVENT:
+        // 		break;
+    // }
+
+    // HAL_UART_Transmit_DMA(&huart1, (uint8_t*)sbus_pack, sizeof(SBUS_PACK) + sbus_pack->datalen);错误用法sbus_pack中的payload为指针，没法连续地从sbus_pack开始发送整个结构体
+      uint8_t buffer[256];
+      memcpy(buffer, sbus_pack, sizeof(SBUS_PACK)-5);/*减去5=*payload这个指针大小+添在末尾的校验字节*/
+      memcpy(buffer+sizeof(SBUS_PACK)-5, sbus_pack->payload, sbus_pack->datalen);
+      memcpy(buffer+sizeof(SBUS_PACK)-5+sbus_pack->datalen, &sbus_pack->check_sum, 1);
+      HAL_UART_Transmit_DMA(&huart1, buffer, sizeof(SBUS_PACK)-4+sbus_pack->datalen);
+      free(sbus_pack->payload);
 }
 
 
 void mpu_msg_tx(void)
 {
-  mpu_msg_pack.soc            = 60;
-  mpu_msg_pack.speed          = can_read_data.Speed/10;
-  mpu_msg_pack.medi           = spraySensor_waterLevel/100;
-  mpu_msg_pack.flow_rate      = 50;
-  mpu_msg_pack.pressure       = spraySensor_waterPressure;
-  mpu_msg_pack.airflow        = mqtt_pub_inform.fanMachinery;
-  mpu_msg_pack.pump           = mqtt_pub_inform.motorWaterPump;
-  mpu_msg_pack.control_mode   = control_flag.Car_State;
-  mpu_msg_pack.checksum       = 0;
-  calculateChecksum(&mpu_msg_pack);//求和校验mpu_msg_pack.checksum
+    mpu_msg_pack.soc            = 0;
+    mpu_msg_pack.speed          = can_read_data.Speed/10;
+    mpu_msg_pack.medi           = spraySensor_waterLevel/100;
+    mpu_msg_pack.flow_rate      = 1500;
+    mpu_msg_pack.pressure       = spraySensor_waterPressure;
+    mpu_msg_pack.airflow        = mqtt_pub_inform.fanMachinery;
+    mpu_msg_pack.pump           = mqtt_pub_inform.motorWaterPump;
+    mpu_msg_pack.control_mode   = control_flag.Car_State;
+    mpu_msg_pack.checksum       = 0;
+    calculateChecksum(&mpu_msg_pack);//求和校验mpu_msg_pack.checksum
 
-  // uint8_t sendbuf[32];
-  HAL_UART_Transmit_DMA(&huart3, (uint8_t*)&mpu_msg_pack, sizeof(mpu_msg_pack));
+    // uint8_t sendbuf[32];
+    HAL_UART_Transmit_DMA(&huart3, (uint8_t*)&mpu_msg_pack, sizeof(mpu_msg_pack));
 }
 
+//校验指定的结构体 末尾check_sum
 void calculateChecksum(MPU_MSG_PACK* packet) {
-
     uint8_t* ptr = (uint8_t*)packet;
     uint16_t sum = 0;
-
     for (int i = 0; i < sizeof(MPU_MSG_PACK) - sizeof(uint8_t); i++) {
         sum += ptr[i];
     }
     packet->checksum = (uint8_t)(sum & 0xFF);
+}
+
+
+uint8_t checksum8(void *data, int size) {
+    uint32_t sum = 0;
+    uint8_t *p = (uint8_t*)data;
+    for(int i=0; i<size; i++) {
+      sum += *p;
+      p++;
+    }//校验的结构体末尾不含check_sum
+
+    // for(int i=0; i<size- sizeof(uint8_t); i++) {
+    //   sum += *p;
+    //   p++;
+    // }//校验的结构体末尾含check_sum
+    return sum & 0xFF;
 }
 
 
