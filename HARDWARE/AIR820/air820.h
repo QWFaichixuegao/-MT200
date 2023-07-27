@@ -251,21 +251,20 @@ extern DESIRED_INFORM desired_inform;
 
 typedef enum
 {
-    heartbeat = 0,            /**MPU	 ->	  MCU         **/
-    path_parsing_progress,    /**MPU	 ->	  MCU  ->  APP**/
-    property_pub,             /**MCU	 ->	  APP         **/
-    control,                  /**MPU	 ->	  MCU         **/
-    command,                  /**APP	 ->	  MCU、MPU    **/
-    path                      /**APP	 ->	  MCU  ->  MPU**/
+    HEARTBEAT_ID = 0,            /**MPU	 ->	  MCU  ->  APP**/
+    PATH_PARSE_PROGRESS_ID,      /**MPU	 ->	  MCU  ->  APP**/
+    CONTROL_ID,                  /**MPU	 ->	  MCU         **/
+    COMMAND_ID,                  /**APP	 ->	  MCU、MPU    **/
+    PATH_ID                /**APP	 ->	  MCU  ->  MPU**/
 }MQ_DATATYPE;
 
 
-#define     HEARTBEAT_ID            0/**MPU	 ->	  MCU         **/
-#define     PATH_PARSE_PROGRESS_ID  1/**MPU	 ->	  MCU  ->  APP**/
-#define     PROPERTY_PUB_ID         2/**MCU	 ->	  APP         **/
-#define     CONTROL_ID              3/**MPU	 ->	  MCU         **/
-#define     COMMAND_ID              4/**APP	 ->	  MCU、MPU    **/
-#define     PATH_ID                 5/**APP	 ->	  MCU  ->  MPU**/
+// #define     HEARTBEAT_ID            0/**MPU	 ->	  MCU         **/
+// #define     PATH_PARSE_PROGRESS_ID  1/**MPU	 ->	  MCU  ->  APP**/
+// #define     PROPERTY_PUB_ID         2/**MCU	 ->	  APP         **/
+// #define     CONTROL_ID              3/**MPU	 ->	  MCU         **/
+// #define     COMMAND_ID              4/**APP	 ->	  MCU、MPU    **/
+// #define     PATH_ID                 5/**APP	 ->	  MCU  ->  MPU**/
 typedef enum
 {
     status_Idle = 0,

@@ -888,53 +888,51 @@ void sbus_tx(SBUS_PACK* sbus_pack, uint8_t msgid)
 
     sbus_pack->msg_id = msgid;
 
-    // switch(msgid)
-    // {
-    //     case property_pub:
-    //     {
+    switch(msgid)
+    {
+        case HEARTBEAT_ID:
+        {
             MQ_PROPERTY_PUB property_pub_pack;
-            property_pub_pack.latitude        = 0;
-            property_pub_pack.longtitude      = 0;
-            property_pub_pack.max_linear      = 1200;
-            property_pub_pack.current_path_id      = 0;
-            property_pub_pack.current_map_id      = 0;
-            property_pub_pack.paused_point_id      = 0;
-            property_pub_pack.heading      = 0;
-            property_pub_pack.use_refill      = 0;
-            property_pub_pack.use_wind      = 0;
-            property_pub_pack.use_4g_rtk      = 0;
-            property_pub_pack.gps_status      = 0;
-            property_pub_pack.num_satellites      = 0;
-            property_pub_pack.navigate_status      = status_Idle;
-            property_pub_pack.soc      = 0;
-            property_pub_pack.motorWaterPump      = 0;
-            property_pub_pack.fanMachinery      = 0;
-            property_pub_pack.vehicleStatus      = 0;
-            property_pub_pack.vehicleSpeed      = 0;
-            property_pub_pack.spraySensor_waterPressure      = 0;
-            property_pub_pack.spraySensor_waterFlow      = 0;
-            property_pub_pack.spraySensor_waterLevel      = 0;
-            property_pub_pack.currentCurrent      = 0;
-            property_pub_pack.dischargeTimeRemain      = 120;
+            property_pub_pack.latitude                  = 0;
+            property_pub_pack.longtitude                = 0;
+            property_pub_pack.max_linear                = 1200;
+            property_pub_pack.current_path_id           = 0;
+            property_pub_pack.current_map_id            = 0;
+            property_pub_pack.paused_point_id           = 0;
+            property_pub_pack.heading                   = -120;
+            property_pub_pack.use_refill                = 0;
+            property_pub_pack.use_wind                  = 0;
+            property_pub_pack.use_4g_rtk                = 0;
+            property_pub_pack.gps_status                = 0;
+            property_pub_pack.num_satellites            = 0;
+            property_pub_pack.navigate_status           = status_Idle;
+            property_pub_pack.soc                       = 0;
+            property_pub_pack.motorWaterPump            = 0;
+            property_pub_pack.fanMachinery              = 0;
+            property_pub_pack.vehicleStatus             = 0;
+            property_pub_pack.vehicleSpeed              = 0;
+            property_pub_pack.spraySensor_waterPressure = 0;
+            property_pub_pack.spraySensor_waterFlow     = 0;
+            property_pub_pack.spraySensor_waterLevel    = 0;
+            property_pub_pack.currentCurrent            = 0;
+            property_pub_pack.dischargeTimeRemain       = 120;
 						sbus_pack->header1    = 0xff;
 						sbus_pack->header2    = 0x55;
             sbus_pack->payload    = (uint8_t*)&property_pub_pack;
             sbus_pack->datalen    = sizeof(property_pub_pack);
 
-
-
             sbus_pack->check_sum  = checksum8(&property_pub_pack, sizeof(property_pub_pack));
             sbus_pack->check_sum  = (uint8_t)(sbus_pack->check_sum+sbus_pack->header1+sbus_pack->header2+sbus_pack->msg_id+sbus_pack->datalen);
-        // }
+        }
 
-        // break;
+        break;
 
-        // case path_parsing_progress:
-        //     break;
+        case PATH_PARSE_PROGRESS_ID:
+            break;
 
         // case DEFAUT_EVENT:
-        // 		break;
-    // }
+        // break;
+    }
 
     // HAL_UART_Transmit_DMA(&huart1, (uint8_t*)sbus_pack, sizeof(SBUS_PACK) + sbus_pack->datalen);错误用法sbus_pack中的payload为指针，没法连续地从sbus_pack开始发送整个结构体
       uint8_t buffer[256];
